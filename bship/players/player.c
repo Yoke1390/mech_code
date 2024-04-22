@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <my-ipc.h>
 #include <client-side.h>
 #include <redundant.h>
@@ -108,9 +109,59 @@ void record_noship(int x, int y){
   }
 }
 
+bool is_ship(char result){
+  return (result == 'B' || result == 'C' || result == 'D' || result == 'S');
+}
+
+void check_next(int x, int y){
+  // todo: もっと安全だがシンプルな方法
+  enum ship *up = &(enemy_board[x][y+1]);
+  enum ship *down = &(enemy_board[x][y-1]);
+  enum ship *left = &(enemy_board[x-1][y]);
+  enum ship *right = &(enemy_board[x+1][y]);
+  
+  if (is_ship(*up) || is_ship(*down)){
+    *right = NOSHIP;
+    *left = NOSHIP;
+  }
+  if (is_ship(*left) || is_ship(*right)){
+    *up = NOSHIP;
+    *down = NOSHIP;
+  }
+}
+
 void record_result(int x,int y,char line[])
 {
-  if(line[13]=='B')
+  char result = line[13];
+  check_next(x, y);
+
+  if (is_ship(result))
+  {
+    if (x == 0){
+      record_noship(x+1, y-1); 
+      record_noship(x+1, y+1); 
+    }
+    else if (x == 8){
+      record_noship(x-1, y-1); 
+      record_noship(x-1, y+1); 
+    }
+    else if (y == 0){
+      record_noship(x-1, y+1); 
+      record_noship(x+1, y+1); 
+    }
+    else if (y == 8){
+      record_noship(x-1, y-1); 
+      record_noship(x+1, y-1); 
+    }
+    else {
+      record_noship(x-1, y-1); 
+      record_noship(x-1, y+1); 
+      record_noship(x+1, y-1); 
+      record_noship(x+1, y+1); 
+    }
+  }
+
+  if(result=='B')
   {
     //====kokokara====
 
@@ -118,7 +169,7 @@ void record_result(int x,int y,char line[])
 
     //====kokomade====
   }
-  else if(line[13]=='C')
+  else if(result=='C')
   {
     //====kokokara====
 
@@ -126,7 +177,7 @@ void record_result(int x,int y,char line[])
 
     //====kokomade====
   }
-  else if(line[13]=='D')
+  else if(result=='D')
   {
     //====kokokara====
 
@@ -134,24 +185,20 @@ void record_result(int x,int y,char line[])
 
     //====kokomade====
   }
-  else if(line[13]=='S')
+  else if(result=='S')
   {
     //====kokokara====
 
     enemy_board[x][y] = SSHIP;
     
-    record_noship(x-1, y-1); 
     record_noship(x-1, y); 
-    record_noship(x-1, y+1); 
     record_noship(x, y-1); 
     record_noship(x, y+1); 
-    record_noship(x+1, y-1); 
     record_noship(x+1, y); 
-    record_noship(x+1, y+1); 
 
     //====kokomade====
   }
-  else if(line[13]=='R')
+  else if(result=='R')
   {
     //====kokokara====
 
@@ -180,31 +227,31 @@ void print_board(void){
       switch(enemy_board[ix][iy])
       {
         case UNKNOWN:
-          printf("U ");
+          printf("\x1b[37mU ");
           break;
         case NOSHIP:
-          printf("N ");
+          printf("\x1b[33mN ");
           break;
         case ROCK:
-          printf("R ");
+          printf("\x1b[30mR ");
           break;
         case BSHIP:
-          printf("B ");
+          printf("\x1b[34mB ");
           break;
         case CSHIP:
-          printf("C ");
+          printf("\x1b[34mC ");
           break;
         case DSHIP:
-          printf("D ");
+          printf("\x1b[34mD ");
           break;
         case SSHIP:
-          printf("S ");
+          printf("\x1b[34mS ");
           break;
         default:
           break;
       }
     }
-    printf("\n");
+    printf("\x1b[37m\n");
   }
 
   printf("  ");

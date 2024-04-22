@@ -20,3 +20,16 @@ winner = ex4, loser = ex2, rule = hit-all, reason = sunk all in 67 rounds, winne
 winner = ex4, loser = ex2, rule = hit-all, reason = sunk all in 68 rounds, winner probably = ??
 winner = 03240236, loser = ex4, rule = hit-all, reason = sunk all in 52 rounds, winner probably = ??
 winner = ex4, loser = 03240236, rule = hit-all, reason = sunk all in 53 rounds, winner probably = ??
+winner = 03240236, loser = ex4, rule = hit-all, reason = sunk all in 36 rounds, winner probably = ??
+winner = 03240236, loser = ex4, rule = hit-all, reason = sunk all in 41 rounds, winner probably = ??
+winner = 03240236, loser = ex4, rule = hit-all, reason = sunk all in 47 rounds, winner probably = ??
+winner = weak TA, loser = 03240236, rule = hit-all, reason = sunk all in 34 rounds, winner probably = ??
+winner = weak TA, loser = 03240236, rule = hit-all, reason = timeout on  opponent, winner probably = ??
+winner = very weakTA, loser = 03240236, rule = hit-all, reason = timeout on  opponent, winner probably = ??
+winner = very weakTA, loser = 03240236, rule = hit-all, reason = timeout on  opponent, winner probably = ??
+winner = very weakTA, loser = 03240236, rule = hit-all, reason = timeout on  opponent, winner probably = ??
+winner = very weakTA, loser = 03240236, rule = hit-all, reason = sunk all in 47 rounds, winner probably = ??
+winner = 03240236, loser = very weakTA, rule = hit-all, reason = sunk all in 41 rounds, winner probably = ??
+winner = 03240236, loser = very weakTA, rule = hit-all, reason = sunk all in 36 rounds, winner probably = ??
+winner = 03240236, loser = very weakTA, rule = hit-all, reason = sunk all in 39 rounds, winner probably = ??
+winner = weak TA, loser = 03240236, rule = hit-all, reason = sunk all in 33 rounds, winner probably = ??
