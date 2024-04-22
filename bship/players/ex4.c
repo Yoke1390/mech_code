@@ -41,6 +41,7 @@ void init_board(void){
     {
       //======kokokara======
 
+      enemy_board[ix][iy] = UNKNOWN;
 
       //======kokomade======
     }
@@ -48,10 +49,24 @@ void init_board(void){
 
   //rock is out of bound
 
-  enemy_board[0][0] = ROCK;
 
   //======kokokara======
+  
+  enemy_board[0][0] = ROCK;
+  enemy_board[0][1] = ROCK;
+  enemy_board[1][0] = ROCK;
 
+  enemy_board[0][8] = ROCK;
+  enemy_board[0][7] = ROCK;
+  enemy_board[1][8] = ROCK;
+
+  enemy_board[8][0] = ROCK;
+  enemy_board[7][0] = ROCK;
+  enemy_board[8][1] = ROCK;
+
+  enemy_board[8][8] = ROCK;
+  enemy_board[7][8] = ROCK;
+  enemy_board[8][7] = ROCK;
 
   //======kokomade======
 }
@@ -67,6 +82,10 @@ void respond_with_shot(void)
     y = rand() % BD_SIZE;
     //=====kokokara====
 
+    if (enemy_board[x][y] == UNKNOWN){
+      enemy_board[x][y] = SHOT;
+      break;
+    }
 	
     //=====kokomade=====
   }

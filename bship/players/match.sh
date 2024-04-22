@@ -1,6 +1,5 @@
 ../master/master -a &
 sleep 1
-../sample/random &
+./player &
 sleep 1
-../sample/sweep &
-
+./ex4 &

@@ -5,7 +5,7 @@
 #include <redundant.h>
 #include <public.h>
 
-const char myName[] = "03240236";
+const char myName[] = "ex5";
 const char deployment[] = "Ba3a4a5a6 Cc1c2c3 Cc5c6c7 De1e2 De4e5 De7e8 Sg1 Sg3 Sg5 Sg7 ";
 
 enum ship {
@@ -140,14 +140,14 @@ void record_result(int x,int y,char line[])
 
     enemy_board[x][y] = SSHIP;
     
-    record_noship(x-1, y-1); 
-    record_noship(x-1, y); 
-    record_noship(x-1, y+1); 
-    record_noship(x, y-1); 
-    record_noship(x, y+1); 
-    record_noship(x+1, y-1); 
-    record_noship(x+1, y); 
-    record_noship(x+1, y+1); 
+    recoard_noship(x-1, y-1); 
+    recoard_noship(x-1, y); 
+    recoard_noship(x-1, y+1); 
+    recoard_noship(x, y-1); 
+    recoard_noship(x, y+1); 
+    recoard_noship(x+1, y-1); 
+    recoard_noship(x+1, y); 
+    recoard_noship(x+1, y+1); 
 
     //====kokomade====
   }

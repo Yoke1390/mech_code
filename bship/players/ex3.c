@@ -34,6 +34,12 @@ void respond_with_shot(void)
 
   //=====kokokara========
 
+  int source = pre_shot_x + 9 * pre_shot_y + 1;
+  x = source % 9;
+  y = source / 9;
+
+  pre_shot_x = x;
+  pre_shot_y = y;
 
   //=====kokomade========
 

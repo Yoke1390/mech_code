@@ -38,10 +38,42 @@ void respond_with_deployment(void)
 }
 
 
-void init_board(void)
-{
-  //======kokokara======
+// copied from ex4.c
+void init_board(void){
+  int ix, iy;
 
+  for(ix = 0; ix < (BD_SIZE); ix++)
+  {
+    for(iy = 0; iy < (BD_SIZE); iy++)
+    {
+      //======kokokara======
+
+      enemy_board[ix][iy] = UNKNOWN;
+
+      //======kokomade======
+    }
+  }
+
+  //rock is out of bound
+
+
+  //======kokokara======
+  
+  enemy_board[0][0] = ROCK;
+  enemy_board[0][1] = ROCK;
+  enemy_board[1][0] = ROCK;
+
+  enemy_board[0][8] = ROCK;
+  enemy_board[0][7] = ROCK;
+  enemy_board[1][8] = ROCK;
+
+  enemy_board[8][0] = ROCK;
+  enemy_board[7][0] = ROCK;
+  enemy_board[8][1] = ROCK;
+
+  enemy_board[8][8] = ROCK;
+  enemy_board[7][8] = ROCK;
+  enemy_board[8][7] = ROCK;
 
   //======kokomade======
 }
@@ -55,9 +87,12 @@ void respond_with_shot(void)
   {
     x = rand() % BD_SIZE;
     y = rand() % BD_SIZE;
-    //=====kokokara=====
+    //=====kokokara====
 
-
+    if (enemy_board[x][y] == UNKNOWN){
+      break;
+    }
+	
     //=====kokomade=====
   }
   printf("[%s] shooting at %d%d ... ", myName, x, y);
@@ -73,6 +108,7 @@ void record_result(int x,int y,char line[])
   {
     //====kokokara====
 
+    enemy_board[x][y] = BSHIP;
 
     //====kokomade====
   }
@@ -81,12 +117,14 @@ void record_result(int x,int y,char line[])
     //====kokokara====
 
 
+    enemy_board[x][y] = CSHIP;
     //====kokomade====
   }
   else if(line[13]=='D')
   {
     //====kokokara====
 
+    enemy_board[x][y] = DSHIP;
 
     //====kokomade====
   }
@@ -94,6 +132,7 @@ void record_result(int x,int y,char line[])
   {
     //====kokokara====
 
+    enemy_board[x][y] = SSHIP;
 
     //====kokomade====
   }
@@ -101,6 +140,7 @@ void record_result(int x,int y,char line[])
   {
     //====kokokara====
 
+    enemy_board[x][y] = ROCK;
 
     //====kokomade====
   }
@@ -108,6 +148,7 @@ void record_result(int x,int y,char line[])
   {
     //====kokokara====
 
+    enemy_board[x][y] = NOSHIP;
 
     //====kokomade====
   }

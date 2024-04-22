@@ -31,6 +31,10 @@ void respond_with_shot(void)
 
   //=====kokokara========
 
+  int source;
+  source = rand() % 64;
+  x = source % 8;
+  y = source / 8;
 
   //=====kokomade========
 
