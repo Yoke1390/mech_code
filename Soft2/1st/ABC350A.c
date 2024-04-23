@@ -30,6 +30,7 @@ S は先頭 3 文字が ABC、末尾 3 文字が数字である長さ 6 の文�
 #include <string.h>
 
 char* substr(const char* source, size_t start, size_t len, char* destination){
+  // strの一部を取り出して一致するか調べる
   strncpy(destination, source + start, len);
   destination[len] = '\0';
   return destination;
@@ -47,12 +48,12 @@ int main(int argc, char *argv[]){
   // printf("comprae:%d\n", strcmp(abc, "ABC"));
 
   if (strcmp(abc, "ABC") != 0){
-    printf("ABC Does not match\n");
+    // printf("ABC Does not match\n");
     printf("No\n");
     return 0;
   }
   if (number < 1 || number > 349 || number == 316){
-    printf("number Does not match\n");
+    // printf("number Does not match\n");
     printf("No\n");
     return 0;
   }
