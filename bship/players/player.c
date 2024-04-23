@@ -47,19 +47,10 @@ void init_board(void){
   {
     for(iy = 0; iy < (BD_SIZE); iy++)
     {
-      //======kokokara======
-
       enemy_board[ix][iy] = UNKNOWN;
-
-      //======kokomade======
     }
   }
-
-  //rock is out of bound
-
-
-  //======kokokara======
-  
+ 
   enemy_board[0][0] = ROCK;
   enemy_board[0][1] = ROCK;
   enemy_board[1][0] = ROCK;
@@ -75,9 +66,9 @@ void init_board(void){
   enemy_board[8][8] = ROCK;
   enemy_board[7][8] = ROCK;
   enemy_board[8][7] = ROCK;
-
-  //======kokomade======
 }
+
+// =====================================================================================================
 
 void respond_with_shot(void)
 {
@@ -88,13 +79,11 @@ void respond_with_shot(void)
   {
     x = rand() % BD_SIZE;
     y = rand() % BD_SIZE;
-    //=====kokokara====
 
     if (enemy_board[x][y] == UNKNOWN){
       break;
     }
 	
-    //=====kokomade=====
   }
   printf("[%s] shooting at %d%d ... ", myName, x, y);
   sprintf(shot_string, "%d%d", x, y);
@@ -103,38 +92,33 @@ void respond_with_shot(void)
   cur_y = y;
 }
 
+bool is_ship(char result){
+  return (result == 'B' || result == 'C' || result == 'D' || result == 'S');
+}
+
+bool is_ship_xy(int x, int y){
+  value = enemy_board[x][y];
+  return (value == 'B' || value == 'C' || value == 'D' || value == 'S');
+}
+
 void record_noship(int x, int y){
   if (enemy_board[x][y] == UNKNOWN){
     enemy_board[x][y] = NOSHIP;
   }
 }
 
-bool is_ship(char result){
-  return (result == 'B' || result == 'C' || result == 'D' || result == 'S');
-}
-
 void check_next(int x, int y){
-  // todo: もっと安全だがシンプルな方法
-  enum ship *up = &(enemy_board[x][y+1]);
-  enum ship *down = &(enemy_board[x][y-1]);
-  enum ship *left = &(enemy_board[x-1][y]);
-  enum ship *right = &(enemy_board[x+1][y]);
-  
-  if (is_ship(*up) || is_ship(*down)){
-    *right = NOSHIP;
-    *left = NOSHIP;
+  if (is_ship_xy(x-1, y), is_ship_xy(x+1, y)){
+    if (y < 8) record_noship(x, y+1);
+    if (y > 0) record_noship(x, y-1);
   }
-  if (is_ship(*left) || is_ship(*right)){
-    *up = NOSHIP;
-    *down = NOSHIP;
+  if (is_ship_xy(x, y-1), is_ship_xy(x, y+1)){
+    if (x < 8) record_noship(x+1, y);
+    if (x > 0) record_noship(x-1, y);
   }
 }
 
-void record_result(int x,int y,char line[])
-{
-  char result = line[13];
-  check_next(x, y);
-
+void record_diag(int x, int x, char result){
   if (is_ship(result))
   {
     if (x == 0){
@@ -160,6 +144,15 @@ void record_result(int x,int y,char line[])
       record_noship(x+1, y+1); 
     }
   }
+}
+
+void record_result(int x,int y,char line[])
+{
+  char result = line[13];
+
+  check_next(x, y);
+  record_diag(x, y, result)
+
 
   if(result=='B')
   {
@@ -187,34 +180,24 @@ void record_result(int x,int y,char line[])
   }
   else if(result=='S')
   {
-    //====kokokara====
-
     enemy_board[x][y] = SSHIP;
     
     record_noship(x-1, y); 
     record_noship(x, y-1); 
     record_noship(x, y+1); 
     record_noship(x+1, y); 
-
-    //====kokomade====
   }
   else if(result=='R')
   {
-    //====kokokara====
-
     enemy_board[x][y] = ROCK;
-
-    //====kokomade====
   }
   else
   {
-    //====kokokara====
-
     enemy_board[x][y] = NOSHIP;
-
-    //====kokomade====
   }
 }
+
+// =====================================================================================================
 
 void print_board(void){
   int ix, iy;
