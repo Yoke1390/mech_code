@@ -67,6 +67,27 @@ bool is_end() { return (target_x < 0); }
 // このフラグを用いて、いま追いかけている戦艦があるかどうかを判定。
 // なにも手がかりがない場合はtrue, 手がかりがある場合はfalse.
 
+int get_length(enum ship target) {
+  switch (target) {
+  case UNKNOWN:
+    return 0;
+  case ROCK:
+    return 0;
+  case NOSHIP:
+    return 0;
+  case BSHIP:
+    return 4;
+  case CSHIP:
+    return 3;
+  case DSHIP:
+    return 2;
+  case SSHIP:
+    return 1;
+  default:
+    return -1; // 無効な値の場合
+  }
+}
+
 bool is_ship(char result) {
   return (result == 'B' || result == 'C' || result == 'D' || result == 'S');
 }
