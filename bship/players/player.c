@@ -12,8 +12,8 @@ const char deployment[] =
 
 enum ship { UNKNOWN, ROCK, NOSHIP, BSHIP, CSHIP, DSHIP, SSHIP };
 
-int cur_x, cur_y;
-char prev_results[4]; // 前回のショットの記録を残す
+int cur_x = 0;
+int cur_y = 0;
 enum ship enemy_board[BD_SIZE][BD_SIZE]; // BD_SIZE is 9 (defined in public.h)
 
 void respond_with_name(void) {
@@ -59,13 +59,80 @@ void init_board(void) {
 
 // =====================================================================================================
 
-bool is_end = true;
+char prev_results[4]; // 前回のショットの記録を残す
+
+int target_x = -1;
+int target_y = -1;
+bool is_end() { return (target_x < 0); }
 // このフラグを用いて、いま追いかけている戦艦があるかどうかを判定。
 // なにも手がかりがない場合はtrue, 手がかりがある場合はfalse.
 
-void calc_next(int *x, int *y) {}
+bool is_ship(char result) {
+  return (result == 'B' || result == 'C' || result == 'D' || result == 'S');
+}
+
+bool is_ship_xy(int x, int y) {
+  if (x < 0 || 8 < x || y < 0 || 8 < y)
+    return false;
+  enum ship value = enemy_board[x][y];
+  return (value == BSHIP || value == CSHIP || value == DSHIP || value == SSHIP);
+}
+
+int count_ship_length(int x, int y) {
+  int i;
+  int start;
+  int count_row = 0;
+  int count_row_max = 0;
+  for (i = 0; i < 9; i++) {
+    // printf("\nTest in count..(%d, %d): count_row = %d, start = %d, i = %d\n",
+    // x, y, count_row, start, i);
+    if (is_ship_xy(i, y)) {
+      // printf("found ship at %d, %d", i, y);
+      if (count_row == 0) {
+        start = i;
+      }
+      count_row++;
+
+      if (count_row > count_row_max && (start - x) * (i - x) <= 0) {
+        count_row_max = count_row;
+      }
+    } else {
+      count_row = 0;
+      start = i;
+    }
+  }
+  int j;
+  int count_col = 0;
+  int count_col_max = 0;
+  for (j = 0; j < 9; j++) {
+    if (is_ship_xy(x, j)) {
+      if (count_col == 0) {
+        start = j;
+      }
+      count_col++;
+      if (count_col > count_col_max && (start - x) * (j - x) <= 0) {
+        count_col_max = count_col;
+      }
+    } else {
+      count_col = 0;
+      start = j;
+    }
+  }
+
+  if (count_row_max > count_col_max)
+    return count_row_max;
+  return count_col_max;
+}
+
+void calc_next(int *x, int *y) {
+  if (is_ship_xy(*x, *y + 1)) {
+  }
+}
 
 void respond_with_shot(void) {
+  // printf("\nTest of count_ship_length(%d, %d): Result = %d\n", cur_x, cur_y,
+  // count_ship_length(cur_x, cur_y));
+
   char shot_string[MSG_LEN];
   int x, y;
 
@@ -78,22 +145,14 @@ void respond_with_shot(void) {
         break;
       }
     }
+  } else {
+    calc_next(&x, &y);
   }
-
   printf("[%s] shooting at %d%d ... ", myName, x, y);
   sprintf(shot_string, "%d%d", x, y);
   send_to_ref(shot_string);
   cur_x = x;
   cur_y = y;
-}
-
-bool is_ship(char result) {
-  return (result == 'B' || result == 'C' || result == 'D' || result == 'S');
-}
-
-bool is_ship_xy(int x, int y) {
-  enum ship value = enemy_board[x][y];
-  return (value == 'B' || value == 'C' || value == 'D' || value == 'S');
 }
 
 void record_noship(int x, int y) {
