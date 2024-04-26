@@ -63,7 +63,10 @@ char prev_results[4]; // 前回のショットの記録を残す
 
 int target_x = -1;
 int target_y = -1;
-bool is_end() { return (target_x < 0); }
+bool is_end() {
+  return true;
+  return (target_x < 0);
+}
 // このフラグを用いて、いま追いかけている戦艦があるかどうかを判定。
 // なにも手がかりがない場合はtrue, 手がかりがある場合はfalse.
 
@@ -88,11 +91,7 @@ int get_length(enum ship target) {
   }
 }
 
-bool is_ship(char result) {
-  return (result == 'B' || result == 'C' || result == 'D' || result == 'S');
-}
-
-bool is_ship_xy(int x, int y) {
+bool is_ship(int x, int y) {
   if (x < 0 || 8 < x || y < 0 || 8 < y)
     return false;
   enum ship value = enemy_board[x][y];
@@ -107,7 +106,7 @@ int count_ship_length(int x, int y) {
   for (i = 0; i < 9; i++) {
     // printf("\nTest in count..(%d, %d): count_row = %d, start = %d, i = %d\n",
     // x, y, count_row, start, i);
-    if (is_ship_xy(i, y)) {
+    if (is_ship(i, y)) {
       // printf("found ship at %d, %d", i, y);
       if (count_row == 0) {
         start = i;
@@ -126,7 +125,7 @@ int count_ship_length(int x, int y) {
   int count_col = 0;
   int count_col_max = 0;
   for (j = 0; j < 9; j++) {
-    if (is_ship_xy(x, j)) {
+    if (is_ship(x, j)) {
       if (count_col == 0) {
         start = j;
       }
@@ -146,7 +145,17 @@ int count_ship_length(int x, int y) {
 }
 
 void calc_next(int *x, int *y) {
-  if (is_ship_xy(*x, *y + 1)) {
+  int move = 0;
+  enum ship target_type = enemy_board[target_x][target_y];
+  if (is_ship(target_x, target_y + 1)) {
+    move = 1;
+    while (true) {
+      move++;
+      if (enemy_board[target_x][target_y + move] == UNKNOWN) {
+        *x = target_x;
+        *y = target_y + move;
+      }
+    }
   }
 }
 
@@ -176,29 +185,20 @@ void respond_with_shot(void) {
   cur_y = y;
 }
 
+// ==== recording ====
+
 void record_noship(int x, int y) {
-  if (enemy_board[x][y] == UNKNOWN) {
-    enemy_board[x][y] = NOSHIP;
+  if (0 <= x || x <= 8 || 0 <= y || y <= 8) {
+    if (enemy_board[x][y] == UNKNOWN) {
+      enemy_board[x][y] = NOSHIP;
+    }
   }
 }
 
-void check_next(int x, int y) {
-  if (is_ship_xy(x - 1, y), is_ship_xy(x + 1, y)) {
-    if (y < 8)
-      record_noship(x, y + 1);
-    if (y > 0)
-      record_noship(x, y - 1);
-  }
-  if (is_ship_xy(x, y - 1), is_ship_xy(x, y + 1)) {
-    if (x < 8)
-      record_noship(x + 1, y);
-    if (x > 0)
-      record_noship(x - 1, y);
-  }
-}
-
-void record_diag(int x, int y, char result) {
-  if (is_ship(result)) {
+void record_diag(int x, int y) {
+  // 船があった時に斜めをNSHIPにする
+  // ROCKがあるからelse ifでいい
+  if (is_ship(x, y)) {
     if (x == 0) {
       record_noship(x + 1, y - 1);
       record_noship(x + 1, y + 1);
@@ -217,14 +217,49 @@ void record_diag(int x, int y, char result) {
       record_noship(x + 1, y - 1);
       record_noship(x + 1, y + 1);
     }
+  } else {
+    // printf("No ship here: x=%d, y=%d", x, y);
+  }
+}
+
+void finish_ship(int x, int y) {
+  enum ship ship_type = enemy_board[x][y];
+  // 一つの船を撃沈したときに周囲をNOSHIPにする
+  // 撃沈したときにその船の端を撃ったと仮定する
+  // record_diagで斜めは埋められているので、両端の２点をNOSHIPにすればいい。
+  if (is_ship(x, y + 1)) {
+    record_noship(x, y - 1);
+    record_noship(x, y + get_length(ship_type));
+  } else if (is_ship(x, y - 1)) {
+    record_noship(x, y + 1);
+    record_noship(x, y - get_length(ship_type));
+  } else if (is_ship(x - 1, y)) {
+    record_noship(x + 1, y);
+    record_noship(x - get_length(ship_type), y);
+  } else if (is_ship(x + 1, y)) {
+    record_noship(x - 1, y);
+    record_noship(x + get_length(ship_type), y);
+  }
+}
+
+void check_next(int x, int y) {
+  // 隣に船がある場合に逆サイドをNOSHIPにする
+  if (is_ship(x - 1, y), is_ship(x + 1, y)) {
+    if (y < 8)
+      record_noship(x, y + 1);
+    if (y > 0)
+      record_noship(x, y - 1);
+  }
+  if (is_ship(x, y - 1), is_ship(x, y + 1)) {
+    if (x < 8)
+      record_noship(x + 1, y);
+    if (x > 0)
+      record_noship(x - 1, y);
   }
 }
 
 void record_result(int x, int y, char line[]) {
   char result = line[13];
-
-  check_next(x, y);
-  record_diag(x, y, result);
 
   if (result == 'B') {
     //====kokokara====
@@ -255,6 +290,20 @@ void record_result(int x, int y, char line[]) {
     enemy_board[x][y] = ROCK;
   } else {
     enemy_board[x][y] = NOSHIP;
+  }
+
+  check_next(x, y);
+  record_diag(x, y);
+
+  // targetの更新
+  if (is_ship(x, y)) {
+    if (count_ship_length(x, y) == get_length(enemy_board[x][y])) {
+      target_x = -1;
+      target_y = -1;
+    } else {
+      target_x = x;
+      target_y = y;
+    }
   }
 
   // 記録を更新
