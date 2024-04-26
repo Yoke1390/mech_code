@@ -59,8 +59,6 @@ void init_board(void) {
 
 // =====================================================================================================
 
-char prev_results[4]; // 前回のショットの記録を残す
-
 int target_x = -1;
 int target_y = -1;
 bool is_end() {
@@ -144,9 +142,22 @@ int count_ship_length(int x, int y) {
   return count_col_max;
 }
 
+void random_xy(int *x, int *y) {
+  while (true) {
+    *x = rand() % BD_SIZE;
+    *y = rand() % BD_SIZE;
+
+    if (enemy_board[*x][*y] == UNKNOWN) {
+      break;
+    }
+  }
+}
+
 void calc_next(int *x, int *y) {
   int move = 0;
   enum ship target_type = enemy_board[target_x][target_y];
+
+  // upward
   if (is_ship(target_x, target_y + 1)) {
     move = 1;
     while (true) {
@@ -154,9 +165,60 @@ void calc_next(int *x, int *y) {
       if (enemy_board[target_x][target_y + move] == UNKNOWN) {
         *x = target_x;
         *y = target_y + move;
+        return;
+      }
+      if (!is_ship(target_x, target_y + move)) {
+        break;
       }
     }
   }
+  // downward
+  if (is_ship(target_x, target_y - 1)) {
+    move = -1;
+    while (true) {
+      move--;
+      if (enemy_board[target_x][target_y + move] == UNKNOWN) {
+        *x = target_x;
+        *y = target_y + move;
+        return;
+      }
+      if (!is_ship(target_x, target_y + move)) {
+        break;
+      }
+    }
+  }
+  // left
+  if (is_ship(target_x - 1, target_y)) {
+    move = -1;
+    while (true) {
+      move--;
+      if (enemy_board[target_x + move][target_y] == UNKNOWN) {
+        *x = target_x + move;
+        *y = target_y;
+        return;
+      }
+      if (!is_ship(target_x, target_y + move)) {
+        break;
+      }
+    }
+  }
+  // right
+  if (is_ship(target_x + 1, target_y)) {
+    move = +1;
+    while (true) {
+      move++;
+      if (enemy_board[target_x + move][target_y] == UNKNOWN) {
+        *x = target_x + move;
+        *y = target_y;
+        return;
+      }
+      if (!is_ship(target_x, target_y + move)) {
+        break;
+      }
+    }
+  }
+  // otherwise (error)
+  random_xy(x, y);
 }
 
 void respond_with_shot(void) {
@@ -167,14 +229,7 @@ void respond_with_shot(void) {
   int x, y;
 
   if (is_end) {
-    while (true) {
-      x = rand() % BD_SIZE;
-      y = rand() % BD_SIZE;
-
-      if (enemy_board[x][y] == UNKNOWN) {
-        break;
-      }
-    }
+    random_xy(&x, &y);
   } else {
     calc_next(&x, &y);
   }
@@ -223,6 +278,7 @@ void record_diag(int x, int y) {
 }
 
 void finish_ship(int x, int y) {
+  printf("\nFinishing a ship at (%d, %d)\n", x, y);
   enum ship ship_type = enemy_board[x][y];
   // 一つの船を撃沈したときに周囲をNOSHIPにする
   // 撃沈したときにその船の端を撃ったと仮定する
@@ -262,23 +318,11 @@ void record_result(int x, int y, char line[]) {
   char result = line[13];
 
   if (result == 'B') {
-    //====kokokara====
-
     enemy_board[x][y] = BSHIP;
-
-    //====kokomade====
   } else if (result == 'C') {
-    //====kokokara====
-
     enemy_board[x][y] = CSHIP;
-
-    //====kokomade====
   } else if (result == 'D') {
-    //====kokokara====
-
     enemy_board[x][y] = DSHIP;
-
-    //====kokomade====
   } else if (result == 'S') {
     enemy_board[x][y] = SSHIP;
 
@@ -298,19 +342,14 @@ void record_result(int x, int y, char line[]) {
   // targetの更新
   if (is_ship(x, y)) {
     if (count_ship_length(x, y) == get_length(enemy_board[x][y])) {
+      finish_ship(x, y);
       target_x = -1;
       target_y = -1;
-    } else {
+    } else if (is_end()) {
       target_x = x;
       target_y = y;
     }
   }
-
-  // 記録を更新
-  prev_results[3] = prev_results[2];
-  prev_results[2] = prev_results[1];
-  prev_results[1] = prev_results[0];
-  prev_results[0] = result;
 }
 
 // =====================================================================================================
