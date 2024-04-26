@@ -7,9 +7,10 @@
 #include <stdlib.h>
 
 const char myName[] = "03240236";
-const char deployment[] =
-    "Ba3a4a5a6 Cc1c2c3 Cc5c6c7 De1e2 De4e5 De7e8 Sg1 Sg3 Sg5 Sg7 ";
 
+// copied form ex1.c
+const char deployment[] =
+    "Bc8d8e8f8 Cb1b2b3 Cf1g1h1 Da6b6 Dh6h7 Dh3i3 Sd0 Se3 Sf5 Sd5 ";
 enum ship { UNKNOWN, ROCK, NOSHIP, BSHIP, CSHIP, DSHIP, SSHIP };
 
 int cur_x = 0;
@@ -322,6 +323,7 @@ void record_result(int x, int y, char line[]) {
   } else if (result == 'C') {
     enemy_board[x][y] = CSHIP;
   } else if (result == 'D') {
+    // TODO: Dが１マス飛ばしで２つあった場合、間は確実にNOSHIPになる。
     enemy_board[x][y] = DSHIP;
   } else if (result == 'S') {
     enemy_board[x][y] = SSHIP;
@@ -340,6 +342,8 @@ void record_result(int x, int y, char line[]) {
   record_diag(x, y);
 
   // targetの更新
+  // printf("DEBUG: count_ship_length(%d, %d) = %d, Ship lenght: %d", x, y,
+  // count_ship_length(x, y), get_length(enemy_board[x][y]));
   if (is_ship(x, y)) {
     if (count_ship_length(x, y) == get_length(enemy_board[x][y])) {
       finish_ship(x, y);
