@@ -62,12 +62,17 @@ void init_board(void) {
 
 int target_x = -1;
 int target_y = -1;
+
 bool is_end() {
-  return true;
-  return (target_x < 0);
+  printf("target_x: %d", target_x);
+  // return true;
+  if (target_x < 0) {
+    return true;
+  }
+  return false;
+  // このフラグを用いて、いま追いかけている戦艦があるかどうかを判定。
+  // なにも手がかりがない場合はtrue, 手がかりがある場合はfalse.
 }
-// このフラグを用いて、いま追いかけている戦艦があるかどうかを判定。
-// なにも手がかりがない場合はtrue, 手がかりがある場合はfalse.
 
 int get_length(enum ship target) {
   switch (target) {
@@ -144,6 +149,8 @@ int count_ship_length(int x, int y) {
 }
 
 void random_xy(int *x, int *y) {
+  target_x = -1;
+  target_y = -1;
   while (true) {
     *x = rand() % BD_SIZE;
     *y = rand() % BD_SIZE;
@@ -163,6 +170,8 @@ void calc_next(int *x, int *y) {
     move = 1;
     while (true) {
       move++;
+      printf("\ncalc_next Target (%d, %d), looking at (%d, %d)\n", target_x,
+             target_y, target_x, target_y + move);
       if (enemy_board[target_x][target_y + move] == UNKNOWN) {
         *x = target_x;
         *y = target_y + move;
@@ -178,6 +187,8 @@ void calc_next(int *x, int *y) {
     move = -1;
     while (true) {
       move--;
+      printf("\ncalc_next Target (%d, %d), looking at (%d, %d)\n", target_x,
+             target_y, target_x, target_y + move);
       if (enemy_board[target_x][target_y + move] == UNKNOWN) {
         *x = target_x;
         *y = target_y + move;
@@ -193,6 +204,8 @@ void calc_next(int *x, int *y) {
     move = -1;
     while (true) {
       move--;
+      printf("\ncalc_next Target (%d, %d), looking at (%d, %d)\n", target_x,
+             target_y, target_x + move, target_y);
       if (enemy_board[target_x + move][target_y] == UNKNOWN) {
         *x = target_x + move;
         *y = target_y;
@@ -208,6 +221,8 @@ void calc_next(int *x, int *y) {
     move = +1;
     while (true) {
       move++;
+      printf("\ncalc_next Target (%d, %d), looking at (%d, %d)\n", target_x,
+             target_y, target_x + move, target_y);
       if (enemy_board[target_x + move][target_y] == UNKNOWN) {
         *x = target_x + move;
         *y = target_y;
@@ -229,7 +244,7 @@ void respond_with_shot(void) {
   char shot_string[MSG_LEN];
   int x, y;
 
-  if (is_end) {
+  if (target_x < 0) {
     random_xy(&x, &y);
   } else {
     calc_next(&x, &y);
@@ -341,6 +356,7 @@ void record_result(int x, int y, char line[]) {
   check_next(x, y);
   record_diag(x, y);
 
+  printf("\n[DEBUG] target_x=%d, target_y=%d\n", target_x, target_y);
   // targetの更新
   // printf("DEBUG: count_ship_length(%d, %d) = %d, Ship lenght: %d", x, y,
   // count_ship_length(x, y), get_length(enemy_board[x][y]));
@@ -349,11 +365,12 @@ void record_result(int x, int y, char line[]) {
       finish_ship(x, y);
       target_x = -1;
       target_y = -1;
-    } else if (is_end()) {
+    } else if (target_x < 0) {
       target_x = x;
       target_y = y;
     }
   }
+  printf("\n[DEBUG] changed: target_x=%d, target_y=%d\n", target_x, target_y);
 }
 
 // =====================================================================================================
