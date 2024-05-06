@@ -17,6 +17,29 @@ int cur_x = 0;
 int cur_y = 0;
 enum ship enemy_board[BD_SIZE][BD_SIZE]; // BD_SIZE is 9 (defined in public.h)
 
+int get_length(enum ship target) {
+  switch (target) {
+  case UNKNOWN:
+    return 0;
+  case TARGET:
+    return 0;
+  case ROCK:
+    return 0;
+  case NOSHIP:
+    return 0;
+  case BSHIP:
+    return 4;
+  case CSHIP:
+    return 3;
+  case DSHIP:
+    return 2;
+  case SSHIP:
+    return 1;
+  default:
+    return -1; // 無効な値の場合
+  }
+}
+
 void respond_with_name(void) {
   char *str = (char *)malloc(sizeof(myName));
   strcpy(str, myName);
@@ -62,82 +85,6 @@ void init_board(void) {
 
 int target_x = -1;
 int target_y = -1;
-
-int get_length(enum ship target) {
-  switch (target) {
-  case UNKNOWN:
-    return 0;
-  case TARGET:
-    return 0;
-  case ROCK:
-    return 0;
-  case NOSHIP:
-    return 0;
-  case BSHIP:
-    return 4;
-  case CSHIP:
-    return 3;
-  case DSHIP:
-    return 2;
-  case SSHIP:
-    return 1;
-  default:
-    return -1; // 無効な値の場合
-  }
-}
-
-bool is_ship(int x, int y) {
-  if (x < 0 || 8 < x || y < 0 || 8 < y)
-    return false;
-  enum ship value = enemy_board[x][y];
-  return (value == BSHIP || value == CSHIP || value == DSHIP || value == SSHIP);
-}
-
-int count_ship_length(int x, int y) {
-  int i;
-  int start;
-  int count_row = 0;
-  int count_row_max = 0;
-  for (i = 0; i < 9; i++) {
-    // printf("\nTest in count..(%d, %d): count_row = %d, start = %d, i = %d\n",
-    // x, y, count_row, start, i);
-    if (is_ship(i, y)) {
-      // printf("found ship at %d, %d", i, y);
-      if (count_row == 0) {
-        start = i;
-      }
-      count_row++;
-
-      if (count_row > count_row_max && (start - x) * (i - x) <= 0) {
-        count_row_max = count_row;
-      }
-    } else {
-      count_row = 0;
-      start = i;
-    }
-  }
-  int j;
-  int count_col = 0;
-  int count_col_max = 0;
-  for (j = 0; j < 9; j++) {
-    if (is_ship(x, j)) {
-      if (count_col == 0) {
-        start = j;
-      }
-      count_col++;
-      if (count_col > count_col_max && (start - x) * (j - x) <= 0) {
-        count_col_max = count_col;
-      }
-    } else {
-      count_col = 0;
-      start = j;
-    }
-  }
-
-  if (count_row_max > count_col_max)
-    return count_row_max;
-  return count_col_max;
-}
 
 void random_xy(int *x, int *y) {
   target_x = -1;
@@ -190,6 +137,13 @@ void respond_with_shot(void) {
 
 // ==== recording ====
 
+bool is_ship(int x, int y) {
+  if (x < 0 || 8 < x || y < 0 || 8 < y)
+    return false;
+  enum ship value = enemy_board[x][y];
+  return (value == BSHIP || value == CSHIP || value == DSHIP || value == SSHIP);
+}
+
 void record_noship(int x, int y) {
   if (0 <= x || x <= 8 || 0 <= y || y <= 8) {
     if (enemy_board[x][y] == UNKNOWN || enemy_board[x][y] == TARGET) {
@@ -200,46 +154,67 @@ void record_noship(int x, int y) {
 
 void record_diag(int x, int y) {
   // 船があった時に斜めをNSHIPにする
-  // ROCKがあるからelse ifでいい
-  printf("record_diag(%d, %d)", x, y);
-  if (x == 0) {
-    record_noship(x + 1, y - 1);
-    record_noship(x + 1, y + 1);
-  } else if (x == 8) {
-    record_noship(x - 1, y - 1);
-    record_noship(x - 1, y + 1);
-  } else if (y == 0) {
-    record_noship(x - 1, y + 1);
-    record_noship(x + 1, y + 1);
-  } else if (y == 8) {
-    record_noship(x - 1, y - 1);
-    record_noship(x + 1, y - 1);
-  } else {
-    record_noship(x - 1, y - 1);
-    record_noship(x - 1, y + 1);
-    record_noship(x + 1, y - 1);
-    record_noship(x + 1, y + 1);
+  // 端の処理はrecord_noshipの内部にあるので気にしないでいい
+  record_noship(x - 1, y - 1);
+  record_noship(x - 1, y + 1);
+  record_noship(x + 1, y - 1);
+  record_noship(x + 1, y + 1);
+}
+
+int count_ship_length(int x, int y) {
+  int count = 1;
+
+  int move_x = -1;
+  while (is_ship(x + move_x, y)) {
+    count++;
+    move_x--;
   }
+  move_x = 1;
+  while (is_ship(x + move_x, y)) {
+    count++;
+    move_x++;
+  }
+
+  int move_y = -1;
+  while (is_ship(x, y + move_y)) {
+    count++;
+    move_y--;
+  }
+  move_y = 1;
+  while (is_ship(x, y + move_y)) {
+    count++;
+    move_y++;
+  }
+
+  return count;
 }
 
 void finish_ship(int x, int y) {
-  printf("\nFinishing a ship at (%d, %d)\n", x, y);
-  enum ship ship_type = enemy_board[x][y];
   // 一つの船を撃沈したときに周囲をNOSHIPにする
   // 撃沈したときにその船の端を撃ったと仮定する
   // record_diagで斜めは埋められているので、両端の２点をNOSHIPにすればいい。
-  if (is_ship(x, y + 1)) {
-    record_noship(x, y - 1);
-    record_noship(x, y + get_length(ship_type));
-  } else if (is_ship(x, y - 1)) {
-    record_noship(x, y + 1);
-    record_noship(x, y - get_length(ship_type));
-  } else if (is_ship(x - 1, y)) {
-    record_noship(x + 1, y);
-    record_noship(x - get_length(ship_type), y);
-  } else if (is_ship(x + 1, y)) {
-    record_noship(x - 1, y);
-    record_noship(x + get_length(ship_type), y);
+  enum ship ship_type = enemy_board[x][y];
+
+  // printf("\n[DEBUG] finished %d/%d\n", count_ship_length(x, y),
+  // get_length(ship_type));
+
+  if (count_ship_length(x, y) == get_length(ship_type)) {
+    // すべての船を撃沈したときのみ処理。
+    printf("\nFinishing a ship at (%d, %d)\n", x, y);
+
+    if (is_ship(x, y + 1)) {
+      record_noship(x, y - 1);
+      record_noship(x, y + get_length(ship_type));
+    } else if (is_ship(x, y - 1)) {
+      record_noship(x, y + 1);
+      record_noship(x, y - get_length(ship_type));
+    } else if (is_ship(x - 1, y)) {
+      record_noship(x + 1, y);
+      record_noship(x - get_length(ship_type), y);
+    } else if (is_ship(x + 1, y)) {
+      record_noship(x - 1, y);
+      record_noship(x + get_length(ship_type), y);
+    }
   }
 }
 
@@ -301,6 +276,7 @@ void record_result(int x, int y, char line[]) {
   if (is_ship(x, y)) {
     check_next(x, y);
     record_diag(x, y);
+    finish_ship(x, y);
     set_target(x, y);
   }
 }
@@ -350,7 +326,7 @@ void print_board(void) {
   for (ix = 0; ix < BD_SIZE; ix++) {
     printf("%2d", ix);
   }
-  printf("\n\n");
+  printf("\n   a b c d e f g h i\n\n");
 }
 
 void handle_messages(void) {

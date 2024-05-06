@@ -2,4 +2,4 @@
 sleep 1
 ./player &
 sleep 1
-../sample/verystrong &
+../sample/ta-3 &
