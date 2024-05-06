@@ -10,8 +10,8 @@ const char myName[] = "03240236";
 
 // copied form ex1.c
 const char deployment[] =
-    "Bc8d8e8f8 Cb1b2b3 Cf1g1h1 Da6b6 Dh6h7 Dh3i3 Sd0 Se3 Sf5 Sd5 ";
-enum ship { UNKNOWN, ROCK, NOSHIP, BSHIP, CSHIP, DSHIP, SSHIP };
+    "Bf5f6f7f8 Cc0d0e0 Cg1g2g3 Dc8d8 Di3i2 Dh5i5 Sb3 Sb5 Sd4 Sh7 ";
+enum ship { UNKNOWN, ROCK, NOSHIP, BSHIP, CSHIP, DSHIP, SSHIP, TARGET };
 
 int cur_x = 0;
 int cur_y = 0;
@@ -63,20 +63,11 @@ void init_board(void) {
 int target_x = -1;
 int target_y = -1;
 
-bool is_end() {
-  printf("target_x: %d", target_x);
-  // return true;
-  if (target_x < 0) {
-    return true;
-  }
-  return false;
-  // このフラグを用いて、いま追いかけている戦艦があるかどうかを判定。
-  // なにも手がかりがない場合はtrue, 手がかりがある場合はfalse.
-}
-
 int get_length(enum ship target) {
   switch (target) {
   case UNKNOWN:
+    return 0;
+  case TARGET:
     return 0;
   case ROCK:
     return 0;
@@ -161,80 +152,21 @@ void random_xy(int *x, int *y) {
   }
 }
 
-void calc_next(int *x, int *y) {
-  int move = 0;
-  enum ship target_type = enemy_board[target_x][target_y];
+void search_target(int *x, int *y) {
+  int i, j;
 
-  // upward
-  if (is_ship(target_x, target_y + 1)) {
-    move = 1;
-    while (true) {
-      move++;
-      printf("\ncalc_next Target (%d, %d), looking at (%d, %d)\n", target_x,
-             target_y, target_x, target_y + move);
-      if (enemy_board[target_x][target_y + move] == UNKNOWN) {
-        *x = target_x;
-        *y = target_y + move;
+  for (i = 0; i < BD_SIZE; i++) {
+    for (j = 0; j < BD_SIZE; j++) {
+      if (enemy_board[i][j] == TARGET) {
+        *x = i;
+        *y = j;
         return;
-      }
-      if (!is_ship(target_x, target_y + move)) {
-        break;
       }
     }
   }
-  // downward
-  if (is_ship(target_x, target_y - 1)) {
-    move = -1;
-    while (true) {
-      move--;
-      printf("\ncalc_next Target (%d, %d), looking at (%d, %d)\n", target_x,
-             target_y, target_x, target_y + move);
-      if (enemy_board[target_x][target_y + move] == UNKNOWN) {
-        *x = target_x;
-        *y = target_y + move;
-        return;
-      }
-      if (!is_ship(target_x, target_y + move)) {
-        break;
-      }
-    }
-  }
-  // left
-  if (is_ship(target_x - 1, target_y)) {
-    move = -1;
-    while (true) {
-      move--;
-      printf("\ncalc_next Target (%d, %d), looking at (%d, %d)\n", target_x,
-             target_y, target_x + move, target_y);
-      if (enemy_board[target_x + move][target_y] == UNKNOWN) {
-        *x = target_x + move;
-        *y = target_y;
-        return;
-      }
-      if (!is_ship(target_x, target_y + move)) {
-        break;
-      }
-    }
-  }
-  // right
-  if (is_ship(target_x + 1, target_y)) {
-    move = +1;
-    while (true) {
-      move++;
-      printf("\ncalc_next Target (%d, %d), looking at (%d, %d)\n", target_x,
-             target_y, target_x + move, target_y);
-      if (enemy_board[target_x + move][target_y] == UNKNOWN) {
-        *x = target_x + move;
-        *y = target_y;
-        return;
-      }
-      if (!is_ship(target_x, target_y + move)) {
-        break;
-      }
-    }
-  }
-  // otherwise (error)
-  random_xy(x, y);
+
+  *x = -1;
+  *y = -1;
 }
 
 void respond_with_shot(void) {
@@ -244,11 +176,11 @@ void respond_with_shot(void) {
   char shot_string[MSG_LEN];
   int x, y;
 
-  if (target_x < 0) {
+  search_target(&x, &y);
+  if (x < 0) {
     random_xy(&x, &y);
-  } else {
-    calc_next(&x, &y);
   }
+
   printf("[%s] shooting at %d%d ... ", myName, x, y);
   sprintf(shot_string, "%d%d", x, y);
   send_to_ref(shot_string);
@@ -260,7 +192,7 @@ void respond_with_shot(void) {
 
 void record_noship(int x, int y) {
   if (0 <= x || x <= 8 || 0 <= y || y <= 8) {
-    if (enemy_board[x][y] == UNKNOWN) {
+    if (enemy_board[x][y] == UNKNOWN || enemy_board[x][y] == TARGET) {
       enemy_board[x][y] = NOSHIP;
     }
   }
@@ -269,27 +201,24 @@ void record_noship(int x, int y) {
 void record_diag(int x, int y) {
   // 船があった時に斜めをNSHIPにする
   // ROCKがあるからelse ifでいい
-  if (is_ship(x, y)) {
-    if (x == 0) {
-      record_noship(x + 1, y - 1);
-      record_noship(x + 1, y + 1);
-    } else if (x == 8) {
-      record_noship(x - 1, y - 1);
-      record_noship(x - 1, y + 1);
-    } else if (y == 0) {
-      record_noship(x - 1, y + 1);
-      record_noship(x + 1, y + 1);
-    } else if (y == 8) {
-      record_noship(x - 1, y - 1);
-      record_noship(x + 1, y - 1);
-    } else {
-      record_noship(x - 1, y - 1);
-      record_noship(x - 1, y + 1);
-      record_noship(x + 1, y - 1);
-      record_noship(x + 1, y + 1);
-    }
+  printf("record_diag(%d, %d)", x, y);
+  if (x == 0) {
+    record_noship(x + 1, y - 1);
+    record_noship(x + 1, y + 1);
+  } else if (x == 8) {
+    record_noship(x - 1, y - 1);
+    record_noship(x - 1, y + 1);
+  } else if (y == 0) {
+    record_noship(x - 1, y + 1);
+    record_noship(x + 1, y + 1);
+  } else if (y == 8) {
+    record_noship(x - 1, y - 1);
+    record_noship(x + 1, y - 1);
   } else {
-    // printf("No ship here: x=%d, y=%d", x, y);
+    record_noship(x - 1, y - 1);
+    record_noship(x - 1, y + 1);
+    record_noship(x + 1, y - 1);
+    record_noship(x + 1, y + 1);
   }
 }
 
@@ -316,6 +245,7 @@ void finish_ship(int x, int y) {
 
 void check_next(int x, int y) {
   // 隣に船がある場合に逆サイドをNOSHIPにする
+  // 上に船があるときに左右をNOSHIPにするなど
   if (is_ship(x - 1, y), is_ship(x + 1, y)) {
     if (y < 8)
       record_noship(x, y + 1);
@@ -327,6 +257,21 @@ void check_next(int x, int y) {
       record_noship(x + 1, y);
     if (x > 0)
       record_noship(x - 1, y);
+  }
+}
+
+void set_target(int x, int y) {
+  if (x > 0 && enemy_board[x - 1][y] == UNKNOWN) {
+    enemy_board[x - 1][y] = TARGET;
+  }
+  if (x < 8 && enemy_board[x + 1][y] == UNKNOWN) {
+    enemy_board[x + 1][y] = TARGET;
+  }
+  if (y > 0 && enemy_board[x][y - 1] == UNKNOWN) {
+    enemy_board[x][y - 1] = TARGET;
+  }
+  if (y < 8 && enemy_board[x][y + 1] == UNKNOWN) {
+    enemy_board[x][y + 1] = TARGET;
   }
 }
 
@@ -353,24 +298,11 @@ void record_result(int x, int y, char line[]) {
     enemy_board[x][y] = NOSHIP;
   }
 
-  check_next(x, y);
-  record_diag(x, y);
-
-  printf("\n[DEBUG] target_x=%d, target_y=%d\n", target_x, target_y);
-  // targetの更新
-  // printf("DEBUG: count_ship_length(%d, %d) = %d, Ship lenght: %d", x, y,
-  // count_ship_length(x, y), get_length(enemy_board[x][y]));
   if (is_ship(x, y)) {
-    if (count_ship_length(x, y) == get_length(enemy_board[x][y])) {
-      finish_ship(x, y);
-      target_x = -1;
-      target_y = -1;
-    } else if (target_x < 0) {
-      target_x = x;
-      target_y = y;
-    }
+    check_next(x, y);
+    record_diag(x, y);
+    set_target(x, y);
   }
-  printf("\n[DEBUG] changed: target_x=%d, target_y=%d\n", target_x, target_y);
 }
 
 // =====================================================================================================
@@ -382,8 +314,12 @@ void print_board(void) {
     printf("%2d ", iy);
     for (ix = 0; ix < BD_SIZE; ix++) {
       switch (enemy_board[ix][iy]) {
+
+      case TARGET:
+        printf("\x1b[31mT ");
+        break;
       case UNKNOWN:
-        printf("\x1b[37mU ");
+        printf("\x1b[30mU ");
         break;
       case NOSHIP:
         printf("\x1b[33mN ");
