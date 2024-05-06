@@ -113,11 +113,6 @@ void sweep_spacial(int *x, int *y) {
   int i, j;
   for (i = 0; i < BD_SIZE; i++) {
     for (j = 0; j < BD_SIZE; j++) {
-      if (i % 2 == 1 && j == 0) {
-        printf("\n[DEBUG] sweep passed at %d, %d\n", i, j);
-        // まっすぐにならないように、偶数と奇数で場合分け
-        continue;
-      }
       if (enemy_board[i][j] == UNKNOWN && enemy_board[i][j + 1] == UNKNOWN) {
         *x = i;
         *y = j + 1;
