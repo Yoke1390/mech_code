@@ -3,11 +3,13 @@
 
 def inc(x):
     """add 1"""
+    print(f"inc({x}) called")
     return x + 1
 
 
 def double(f):
     """calc two times"""
+    print(f"double({f}) called")
     return lambda x: f(f(x))
 
 
