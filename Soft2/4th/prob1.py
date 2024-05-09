@@ -11,7 +11,7 @@ def sum_rec(term, a, _next, b):
 
     if a > b:
         return 0
-    return term(a) + sum(term, _next(a), _next, b)
+    return term(a) + sum_rec(term, _next(a), _next, b)
 
 
 def inc(n):
@@ -30,7 +30,7 @@ def integral(f, a, b, dx):
     def add_dx(x):
         return x + dx
 
-    return sum(f, a + (dx / 2.0), add_dx, b) * dx
+    return sum_rec(f, a + (dx / 2.0), add_dx, b) * dx
 
 
 def integral_simpson(f, a, b, n):
@@ -55,4 +55,17 @@ def integral_simpson(f, a, b, n):
         # error
         return 0
 
-    return sum(term, a, b, n) * (3 / h)
+    return sum_rec(term, 0, inc, n) * (h / 3)
+
+
+if __name__ == "__main__":
+    print(f"integral_simpson(cube, 0, 1, 5): {integral_simpson(cube, 0, 1, 5)}")
+    print(f"integral_simpson(cube, 0, 1, 10): {integral_simpson(cube, 0, 1, 10)}")
+    print(f"integral_simpson(cube, 0, 1, 100): {integral_simpson(cube, 0, 1, 100)}")
+    print(f"integral(cube, 0, 1, 0.01): {integral(cube, 0, 1, 0.01)}")
+
+# Result
+# > integral_simpson(cube, 0, 1, 5): 0.20320000000000002
+# > integral_simpson(cube, 0, 1, 10): 0.25
+# > integral_simpson(cube, 0, 1, 100): 0.24999999999999992
+# > integral(cube, 0, 1, 0.01): 0.24998750000000042
