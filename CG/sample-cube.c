@@ -58,11 +58,9 @@ void display(void) {
   glLoadIdentity();         /* clear the matrix */
                             /* viewing transformation  */
   gluLookAt(0.0, 2.5, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-  // position(x, y, z), direction(x, y, z), upward(x, y, z)
   glTranslatef(1.0, 0.0, 0.0); // move cube
   glScalef(1.0, 2.0, 1.0);     /* modeling transformation */
 
-  // glutWireCube(1.0);
   glutWireTorus(0.5, 1.5, 12.0, 12.0);
   glFlush();
 }
@@ -73,7 +71,6 @@ void reshape(int w, int h) {
   glLoadIdentity();
   // glFrustum(-1.0, 1.0, -1.0, 1.0, 1.5, 20.0);
   gluPerspective(90.0, 1.0, 1.5, 20.0);
-  // gluPerspective(fovy, aspect, zNear, zFar)
   glMatrixMode(GL_MODELVIEW);
 }
 
