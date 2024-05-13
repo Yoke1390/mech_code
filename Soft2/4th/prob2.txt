@@ -1,0 +1,37 @@
+# Problem2
+
+inc(inc(inc(inc(0)))) となり、inc()が４回呼び出されるため。
+double(inc)は1回しか呼び出されていない。
+実行に用いられるのはdouble()の戻り値になる関数であり、double()自体ではないからである。
+
+```
+"""program for assignment 2"""
+
+
+def inc(x):
+    """add 1"""
+    print(f"inc({x}) called")
+    return x + 1
+
+
+def double(f):
+    """calc two times"""
+    print(f"double({f}) called")
+    return lambda x: f(f(x))
+
+
+print(f"double(inc)(0): {double(inc)(0)}")
+print(f"double(double(inc))(0): {double(double(inc))(0)}")
+
+#> double(<function inc at 0x7f5bdb163d90>) called
+#> inc(0) called
+#> inc(1) called
+#> double(inc)(0): 2
+#> double(<function inc at 0x7f5bdb163d90>) called
+#> double(<function double.<locals>.<lambda> at 0x7f5bdb0a7d90>) called
+#> inc(0) called
+#> inc(1) called
+#> inc(2) called
+#> inc(3) called
+#> double(double(inc))(0): 4
+```

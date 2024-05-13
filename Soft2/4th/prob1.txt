@@ -1,3 +1,6 @@
+# Problem1
+
+```
 """program for assignment 1"""
 
 
@@ -65,7 +68,9 @@ if __name__ == "__main__":
     print(f"integral(cube, 0, 1, 0.01): {integral(cube, 0, 1, 0.01)}")
 
 # Result
-# > integral_simpson(cube, 0, 1, 5): 0.20320000000000002
-# > integral_simpson(cube, 0, 1, 10): 0.25
-# > integral_simpson(cube, 0, 1, 100): 0.24999999999999992
-# > integral(cube, 0, 1, 0.01): 0.24998750000000042
+#> integral_simpson(cube, 0, 1, 5): 0.20320000000000002
+#> integral_simpson(cube, 0, 1, 10): 0.25
+#> integral_simpson(cube, 0, 1, 100): 0.24999999999999992
+#> integral(cube, 0, 1, 0.01): 0.24998750000000042
+```
+
