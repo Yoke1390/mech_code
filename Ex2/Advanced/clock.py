@@ -1,88 +1,69 @@
 import tkinter as tk
-from datetime import datetime
 import math
 
 
-CIRCLE_RADIUS = 300
+class AnalogClock(tk.Canvas):
+    def __init__(self, master=None, **kwargs):
+        super().__init__(master, **kwargs)
+        self.width = self.winfo_reqwidth()
+        self.height = self.winfo_reqheight()
+        self.center = (self.width // 2, self.height // 2)
+        self.radius = min(self.width, self.height) // 2 - 10
+
+        # Initial time is 10:10
+        self.hour = 10
+        self.minute = 10
+
+        self.bind("<B1-Motion>", self.on_drag)
+        self.draw_clock()
+
+    def draw_clock(self):
+        self.delete("all")
+        self.create_oval(self.center[0] - self.radius, self.center[1] - self.radius,
+                         self.center[0] + self.radius, self.center[1] + self.radius)
+
+        # Draw hour marks
+        for i in range(12):
+            angle = math.pi / 6 * i
+            x_inner = self.center[0] + self.radius * 0.8 * math.sin(angle)
+            y_inner = self.center[1] - self.radius * 0.8 * math.cos(angle)
+            x_outer = self.center[0] + self.radius * 0.9 * math.sin(angle)
+            y_outer = self.center[1] - self.radius * 0.9 * math.cos(angle)
+            self.create_line(x_inner, y_inner, x_outer, y_outer, width=2)
+
+        # Draw minute hand
+        minute_angle = math.pi / 30 * self.minute
+        self.minute_hand = self.create_line(
+            self.center[0], self.center[1],
+            self.center[0] + self.radius * 0.8 * math.sin(minute_angle),
+            self.center[1] - self.radius * 0.8 * math.cos(minute_angle),
+            width=2, fill='blue'
+        )
+
+        # Draw hour hand
+        hour_angle = math.pi / 6 * (self.hour + self.minute / 60)
+        self.hour_hand = self.create_line(
+            self.center[0], self.center[1],
+            self.center[0] + self.radius * 0.5 * math.sin(hour_angle),
+            self.center[1] - self.radius * 0.5 * math.cos(hour_angle),
+            width=4, fill='black'
+        )
+
+    def on_drag(self, event):
+        x, y = event.x - self.center[0], event.y - self.center[1]
+        angle = math.atan2(y, x)
+        new_minute = (angle * 30 / math.pi) % 60
+        if self.minute < 10 and new_minute > 50:
+            self.hour = (self.hour - 1) % 24
+        elif self.minute > 50 and new_minute < 10:
+            self.hour = (self.hour + 1) % 24
+        self.minute = round(new_minute)
+        self.draw_clock()
 
 
-def update_clock():
-    current_time = datetime.now().time()
-    hour = current_time.hour
-    minute = current_time.minute
-    second = current_time.second
-
-
-    # 秒針の角度を計算
-    # second_angle = second * 6  # 1秒あたりの角度は360度を60秒で割った値
-
-
-    # 分針の角度を計算
-    minute_angle = (minute + second / 60) * 6  # 1分あたりの角度は360度を60分で割った値
-
-
-    # 時針の角度を計算
-    hour_angle = (hour + minute / 60) * 30  # 1時間あたりの角度は360度を12時間で割った値
-
-
-    # キャンバスをクリア
-    canvas.delete("all")
-
-
-    # 時計の円を描画
-    left_top = CIRCLE_RADIUS // 3
-    right_bottom = CIRCLE_RADIUS // 3 * 5
-    canvas.create_oval(left_top, left_top, right_bottom, right_bottom, width=2)
-
-
-    # 数字を描画
-    number_radius = CIRCLE_RADIUS // 5 * 3
-    font_size = int(CIRCLE_RADIUS * 0.08)
-    for i in range(1, 13):
-        angle = math.radians(i * 30)  # 12個の数字を円周上に均等に配置するために30度ごとに計算
-        x = CIRCLE_RADIUS + number_radius * math.sin(angle)
-        y = CIRCLE_RADIUS - number_radius * math.cos(angle)
-        canvas.create_text(x, y, text=str(i), font=("Arial", font_size, "bold"))
-
-
-    # 秒針を描画
-    # second_x = CIRCLE_RADIUS + 80 * math.sin(math.radians(second_angle))
-    # second_y = CIRCLE_RADIUS - 80 * math.cos(math.radians(second_angle))
-    # canvas.create_line(CIRCLE_RADIUS, CIRCLE_RADIUS, second_x, second_y, fill="red", width=2)
-
-
-    # 分針を描画
-    minute_radius = CIRCLE_RADIUS // 15 * 7
-    minute_x = CIRCLE_RADIUS + minute_radius * math.sin(math.radians(minute_angle))
-    minute_y = CIRCLE_RADIUS - minute_radius * math.cos(math.radians(minute_angle))
-    canvas.create_line(CIRCLE_RADIUS, CIRCLE_RADIUS, minute_x, minute_y, fill="blue", width=3)
-
-
-    # 時針を描画
-    hour_radius = CIRCLE_RADIUS // 3
-    hour_x = CIRCLE_RADIUS + hour_radius * math.sin(math.radians(hour_angle))
-    hour_y = CIRCLE_RADIUS - hour_radius * math.cos(math.radians(hour_angle))
-    canvas.create_line(CIRCLE_RADIUS, CIRCLE_RADIUS, hour_x, hour_y, fill="black", width=4)
-
-
-    # 1秒後に再びアップデート
-    root.after(1000, update_clock)
-
-
-# Tkinterウィンドウを作成
-root = tk.Tk()
-root.title("Analog Clock")
-
-
-# キャンバスを作成
-window_size = 2 * CIRCLE_RADIUS
-canvas = tk.Canvas(root, width=window_size, height=window_size)
-canvas.pack()
-
-
-# 初回のアップデート
-update_clock()
-
-
-# メインループを開始
-root.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.title("Analog Clock")
+    clock = AnalogClock(root, width=400, height=400)
+    clock.pack(expand=True, fill=tk.BOTH)
+    root.mainloop()
