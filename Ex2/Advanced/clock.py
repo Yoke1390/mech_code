@@ -10,7 +10,7 @@ class AnalogClock(tk.Canvas):
         self.center = (self.width // 2, self.height // 2)
         self.radius = min(self.width, self.height) // 2 - 10
 
-        # Initial time is 10:10
+        # 時刻の初期設定(10:10)
         self.hour = 10
         self.minute = 10
 
@@ -22,7 +22,7 @@ class AnalogClock(tk.Canvas):
         self.create_oval(self.center[0] - self.radius, self.center[1] - self.radius,
                          self.center[0] + self.radius, self.center[1] + self.radius)
 
-        # Draw hour marks
+        # 目盛りの描画
         for i in range(12):
             angle = math.pi / 6 * i
             x_inner = self.center[0] + self.radius * 0.8 * math.sin(angle)
@@ -31,7 +31,7 @@ class AnalogClock(tk.Canvas):
             y_outer = self.center[1] - self.radius * 0.9 * math.cos(angle)
             self.create_line(x_inner, y_inner, x_outer, y_outer, width=2)
 
-        # Draw minute hand
+        # 分針の描画
         minute_angle = math.pi / 30 * self.minute
         self.minute_hand = self.create_line(
             self.center[0], self.center[1],
@@ -40,7 +40,7 @@ class AnalogClock(tk.Canvas):
             width=2, fill='blue'
         )
 
-        # Draw hour hand
+        # 時針の描画
         hour_angle = math.pi / 6 * (self.hour + self.minute / 60)
         self.hour_hand = self.create_line(
             self.center[0], self.center[1],
@@ -51,8 +51,18 @@ class AnalogClock(tk.Canvas):
 
     def on_drag(self, event):
         x, y = event.x - self.center[0], event.y - self.center[1]
-        angle = math.atan2(y, x)
+        angle = math.atan2(y, x) + math.pi / 2  # 90度のずれを修正
         new_minute = (angle * 30 / math.pi) % 60
+
+        # 現在時刻からのズレが大きい場合は無視
+        new_x = self.center[0] + self.radius * 0.8 * math.sin(math.pi / 30 * new_minute)
+        new_y = self.center[1] - self.radius * 0.8 * math.cos(math.pi / 30 * new_minute)
+        old_x = self.center[0] + self.radius * 0.8 * math.sin(math.pi / 30 * self.minute)
+        old_y = self.center[1] - self.radius * 0.8 * math.cos(math.pi / 30 * self.minute)
+        if (new_x - old_x) ** 2 + (new_y - old_y) ** 2 > self.radius ** 2 / 25:
+            return
+
+
         if self.minute < 10 and new_minute > 50:
             self.hour = (self.hour - 1) % 24
         elif self.minute > 50 and new_minute < 10:
