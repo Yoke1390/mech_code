@@ -1,5 +1,19 @@
 import tkinter as tk
 import math
+import serial
+
+
+# シリアルポートの設定
+ser = serial.Serial('GUI', 9600)
+
+
+# ======= 時計のパラメータ ========
+init_hour = 10
+init_minute = 10
+
+rotate_per_hour = 1  # 時計を1時間進めるのに必要なつまみの回転回数
+
+# =================================
 
 
 class AnalogClock(tk.Canvas):
@@ -11,8 +25,8 @@ class AnalogClock(tk.Canvas):
         self.radius = min(self.width, self.height) // 2 - 10
 
         # 時刻の初期設定(10:10)
-        self.hour = 10
-        self.minute = 10
+        self.hour = init_hour
+        self.minute = init_minute
 
         self.bind("<B1-Motion>", self.on_drag)
         self.draw_clock()
@@ -69,6 +83,12 @@ class AnalogClock(tk.Canvas):
             self.hour = (self.hour + 1) % 24
         self.minute = round(new_minute)
         self.draw_clock()
+
+    def send_serial(self):
+        diff_hour = self.hour - init_hour
+        diff_minute = self.minute - init_minute
+        target_angle = 2 * math.pi * rotate_per_hour * (diff_hour + diff_minute / 60)
+        ser.write(f"Move:{target_angle}")
 
 
 if __name__ == "__main__":
