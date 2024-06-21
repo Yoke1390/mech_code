@@ -1,5 +1,7 @@
 import tkinter as tk
 import math
+import time
+import threading
 import serial
 
 
@@ -26,8 +28,20 @@ class AnalogClock(tk.Canvas):
         self.hour = init_hour
         self.minute = init_minute
 
+        # シリアル通信の設定
+        self.last_send_time = time.time()
+        self.last_minute = self.minute
+        self.last_hour = self.hour
+
         self.bind("<B1-Motion>", self.on_drag)
         self.draw_clock()
+        self.timeEvent()  # タイマー起動
+
+    # タイマー起動用関数
+    def timeEvent(self):
+        th = threading.Thread(target=self.send_step)  # スレッドインスタンス生成
+        th.start()  # スレッドスタート
+        self.after(1000, self.timeEvent)  # ここで、再帰的に関数を呼び出す
 
     def draw_clock(self):
         self.delete("all")
@@ -88,16 +102,20 @@ class AnalogClock(tk.Canvas):
 
         self.minute = new_minute
 
-        # ステッピングモーターにステップ数を送信
-        step = int(minute_diff)
-        send_step(step)
 
         self.draw_clock()
 
 
-def send_step(step):
-    print(f'Send step {step}')
-    ser.write(bytes(str(step), encoding="ascii"))  # ステッピングモーターにステップ数を送信
+    def send_step(self):
+        minute_diff = self.minute - self.last_minute
+        hour_diff = self.hour - self.last_hour
+        step = minute_diff + 60 * hour_diff
+
+        self.last_minute = self.minute
+        self.last_hour = self.hour
+        print(f'Send step {step}')
+        send = str(step) + ','
+        ser.write(bytes(send, encoding="ascii"))  # ステッピングモーターにステップ数を送信
 
 
 if __name__ == "__main__":

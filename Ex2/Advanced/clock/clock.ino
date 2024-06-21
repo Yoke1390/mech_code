@@ -22,9 +22,10 @@ int remaining_steps = 0;
 
 void getSteps(){
   if(Serial.available()>0){
-    String input = Serial.readStringUntil(';');
+    String input = Serial.readStringUntil(',');
+    Serial.println("Received: " + input);
     remaining_steps += input.toInt();
-    Serial.println(remaining_steps);
+    Serial.println("Remaining steps: " + String(remaining_steps));
   }
 }
 
