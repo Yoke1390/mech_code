@@ -80,6 +80,20 @@ files = [
 ]
 
 [[package]]
+name = "pyserial"
+version = "3.5"
+description = "Python Serial Port Extension"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pyserial-3.5-py2.py3-none-any.whl", hash = "sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0"},
+    {file = "pyserial-3.5.tar.gz", hash = "sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb"},
+]
+
+[package.extras]
+cp2110 = ["hidapi"]
+
+[[package]]
 name = "pytk"
 version = "0.0.2.1"
 description = "A thin Pythonic layer on top of TkInter GUI."
@@ -152,4 +166,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "23a7cf80389cc592ed631b2078b1da13cb0dc5ecbd7dd3ba196fa536ff4bade0"
+content-hash = "ae14ec57850cd01427e9c28118bb14a00d6e1547f34d10407bb67653cfe2da33"
