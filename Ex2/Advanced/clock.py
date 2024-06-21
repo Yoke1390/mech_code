@@ -4,7 +4,7 @@ import serial
 
 
 # シリアルポートの設定
-ser = serial.Serial('GUI', 9600)
+ser = serial.Serial('/dev/cu.usbserial-120', 9600)
 
 
 # ======= 時計のパラメータ ========
@@ -89,6 +89,11 @@ class AnalogClock(tk.Canvas):
         diff_minute = self.minute - init_minute
         target_angle = 2 * math.pi * rotate_per_hour * (diff_hour + diff_minute / 60)
         ser.write(f"Move:{target_angle}")
+
+
+def send_step(step):
+    print(f'Send step {step}')
+    ser.write(bytes(str(step), encoding="ascii"))  # ステッピングモーターにステップ数を送信
 
 
 if __name__ == "__main__":
