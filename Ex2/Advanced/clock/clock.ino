@@ -1,31 +1,51 @@
-// C++ code
-//
+#include <Stepper.h>
 
-#define TRIG 2
-#define ECHO 3
+#define Q1 2
+#define NOT_Q1 3
+#define Q2 4
+#define NOT_Q2 5
+
+#define TRIG 9
+#define ECHO 8
+#define STEPS_PER_ROTATE 2048
+#define STEPS 33
 
 const float time_gain = 1.0/58.0;
 
-float read_sensor(){
-  digitalWrite(TRIG, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(TRIG, LOW);
+int rpm = 15;
+Stepper stepper(STEPS_PER_ROTATE, Q1, Q2, NOT_Q1, NOT_Q2);
 
-  Serial.println(pulseIn(ECHO, HIGH));
 
-  return time_gain * pulseIn(ECHO, HIGH);
+String inString = "";  // string to hold input
+int remaining_steps = 0;
+
+
+void getSteps(){
+  if(Serial.available()>0){
+    String input = Serial.readStringUntil(';');
+    remaining_steps += input.toInt();
+    Serial.println(remaining_steps);
+  }
+}
+
+void runStepper(){
+  if (remaining_steps > 5){
+    stepper.step(5*STEPS);
+    remaining_steps-=5;
+  } else if (remaining_steps > 0){
+    stepper.step(STEPS);
+    remaining_steps--;
+  }
 }
 
 void setup() { 
-  pinMode(TRIG, OUTPUT); 
-  pinMode(ECHO, INPUT);
-
   Serial.begin(9600);
+  stepper.setSpeed(rpm);
 }
 
-float distance;
 void loop() {
-  distance = read_sensor();
-  Serial.println(distance);
-  delay(500);
+  getSteps();
+  runStepper();
+  Serial.println("Remaining steps: " + String(remaining_steps));
+  delay(100);
 }
