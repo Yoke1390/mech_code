@@ -35,6 +35,12 @@ void runStepper(){
   } else if (remaining_steps > 0){
     stepper.step(STEPS);
     remaining_steps--;
+  } else if (remaining_steps < -5){
+    stepper.step(-5*STEPS);
+    remaining_steps+=5;
+  } else if (remaining_steps < 0){
+    stepper.step(-STEPS);
+    remaining_steps++;
   }
 }
 
