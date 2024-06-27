@@ -88,7 +88,7 @@ class Problem:
         self.plot()
         print("Result:")
         print(f"Time to reach goal: {self.time_record} s")
-        print(f"Total energy consumption: {self.J_sum/1000:.1f} kJ")
+        print(f"Total energy consumption: {self.J_sum / 1000:.1f} kJ")
 
     def update(self, t):
         self.T += (Qin - Q_cool(self.N) - Qout) / room_capacity
@@ -126,22 +126,23 @@ class Problem:
 
         color = "tab:red"
         ax1.set_xlabel("time (s)")
-        ax1.set_ylabel("N", color=color)
+        ax1.set_ylabel("N: compressor speed [rps]", color=color)
         ax1.plot(self.N_record, color=color)
         ax1.tick_params(axis="y", labelcolor=color)
 
         ax2 = ax1.twinx()
         color = "tab:blue"
-        ax2.set_ylabel("T", color=color)
+        ax2.set_ylabel("T: room tempreture [degree C]", color=color)
         ax2.plot(self.T_record, color=color)
         ax2.tick_params(axis="y", labelcolor=color)
         plt.grid()
 
+        J_kJ = [J / 1000 for J in self.J_record]
         ax3 = ax1.twinx()
         ax3.spines["right"].set_position(("outward", 60))
         color = "tab:green"
-        ax3.set_ylabel("J", color=color)
-        ax3.plot(self.J_record, color=color)
+        ax3.set_ylabel("J: energy consumption [kJ]", color=color)
+        ax3.plot(J_kJ, color=color)
         ax3.tick_params(axis="y", labelcolor=color)
 
         fig.tight_layout()
