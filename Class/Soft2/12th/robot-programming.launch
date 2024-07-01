@@ -1,0 +1,10 @@
+<launch>
+  <include file="$(find dxl_armed_turtlebot)/launch/dxl_armed_turtlebot_gazebo.launch" />
+  <node pkg="rqt_gui" name="rqt_gui"
+        type="rqt_gui" args="--perspective-file $(find dxl_armed_turtlebot)/launch/enshu.perspective" />
+  <include file="$(find opencv_apps)/launch/camshift.launch">
+    <arg name="image" value="/camera/rgb/image_raw" />
+  </include>
+  <node pkg="image_view2" name="image_view2"
+        type="image_view2" args="image:=/camera/rgb/image_raw ~image_transport:=compressed" />
+</launch>
