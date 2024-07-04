@@ -15,10 +15,12 @@ K2=1000; %Tool cost, yen
 Speed=[100 200 300 400 500]; %Cutting speed, m/min
 Life=[213.7 21.2 5.5 2.1 1.0]; %Tool life, min
 
-CT=????; %Cutting time
-CC=????; %Cost
+Speed_mm = Speed * 1000; %Cutting speed, mm/min
 
-plot(Speed,CT,Speed,CC);
+CT=(Vol / (D * Fr)) ./ Speed_mm; %Cutting time
+CC=K1 * CT + (K1 * Tau + K2) * (CT ./ Life) + K1 * T3; %Cost
+
+plot(Speed,CT, "ro-", Speed,CC/1000, "bo-"); hold on;
 axis([0,600,0,60]);
 xlabel('Cutting speed, m/min');
-ylabel('Time, min & Cost, yen');
+ylabel('Time, min & Cost, thousand yen');
