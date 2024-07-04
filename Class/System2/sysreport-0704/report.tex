@@ -1,0 +1,128 @@
+\documentclass{jsarticle}
+\usepackage{amsmath}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage[dvipdfmx]{color}
+\usepackage{mathtools}
+\usepackage{physics}
+\usepackage{siunitx}
+\usepackage{wrapfig}
+\usepackage{bm}
+\mathtoolsset{showonlyrefs=true}
+
+\begin{document}
+
+\title{システム制御レポート}
+\author{前田陽祐（03-240236）}
+\date{2024-07-03}
+\maketitle
+
+\section{制御する対象のモデル化運動方程式から状態方程式を得る}
+アクチュエータの力 \( U \) ：
+\[ U = \frac{d}{Ts + 1}I \]
+
+マス・バネ・ダンパ系の運動方程式：
+\[ m\ddot{z} + c\dot{z} + kz = U \]
+
+以下のように状態変数を設定する。
+\[ \begin{cases}
+     {x}_1 = z \\
+     {x}_2 = \dot{z} \\
+     {x}_3 = U
+\end{cases} \]
+
+これにより、状態方程式は以下のようになる。
+
+\[ \begin{cases}
+\dot{x}_1 = x_2 \\
+\dot{x}_2 = -\frac{k}{m}x_1 - \frac{c}{m}x_2 + \frac{1}{m}x_3 \\
+\dot{x}_3 = \frac{1}{T}(dI - x_3)
+\end{cases} \]
+
+これを行列形式に変換する。
+\[
+\frac{d}{dt} \begin{bmatrix}
+ x_1 \\\ x_2 \\\ x_3
+\end{bmatrix}= \begin{bmatrix}
+0 & 1 & 0 \\\ -\frac{k}{m} & -\frac{c}{m} & \frac{1}{m} \\\ 0 & 0 & -\frac{1}{T} \end{bmatrix}
+\begin{bmatrix} x_1 \\\ x_2 \\\ x_3 \end{bmatrix}
++
+\begin{bmatrix} 0 \\\ 0 \\\ \frac{d}{T} \end{bmatrix} I
+\]
+
+\section{制御目的の決定}
+素早く安定化させることを目的とする
+
+\section{制御方式}
+
+MATLAB の lqr() 関数を使い、最適レギュレータを設計する。
+
+
+\section{各状態の計測の問題}
+位置 z のみ計測可能とする。
+
+同一次元オブザーバに関する式は以下の通り。
+
+\[
+     \begin{cases}
+          \dot{\hat{x}} = A\hat{x} + Bu + L(y - \hat{y}) \\
+          \hat{y} = C\hat{x}
+     \end{cases}
+\]
+
+
+\section{コントローラの設計各種パラメータ,極は各自が自由に設定して, コントローラゲイン,オブザーバゲインを求める}
+\subsection{パラメータの設定}
+例題の値よりも質量を大きくして、コントローラの電流のゲインを小さく設定する。
+\[\begin{cases}
+m = 2 \\
+d = 0.5 \\
+c = k = T = 1
+\end{cases}\]
+
+\subsection{MATLAB によるシミュレーション}
+\begin{verbatim}
+% パラメータ設定
+m = 2;
+k = 1;
+c = 1;
+d = 0.5;
+T = 1;
+
+% システム行列の定義
+A = [0 1 0; 
+     -k/m -c/m 1/m; 
+     0 0 -1/T];
+B = [0; 0; d/T];
+C = [1 0 0; 0 1 0; 0 0 1];
+D = [0; 0; 0];
+
+% LQR法による最適制御器の設計
+Q = C' * C;
+R = 1;  % 重み行列（適宜調整）
+[K, ~, ~] = lqr(A, B, Q, R);
+
+% オブザーバゲインの設計
+% オブザーバ行列の設計
+poles = [-3; -4; -5];  % オブザーバ極（適宜調整）
+L = place(A', C', poles)';
+
+% 結果の表示
+disp('制御ゲイン K:');
+disp(K);
+
+disp('オブザーバゲイン L:');
+disp(L);
+\end{verbatim}
+
+\subsection{結果}
+\begin{verbatim}
+制御ゲイン K:
+    0.0293    0.4286    0.4202
+
+オブザーバゲイン L:
+    3.0000    1.0000         0
+   -0.5000    3.5000    0.5000
+         0         0    4.0000
+\end{verbatim}
+
+\end{document}
