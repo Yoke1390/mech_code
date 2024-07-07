@@ -13,13 +13,13 @@ docker cp <source_path> ros:<dest_path>
 
 ## 終了したあと再接続するには
 公式には、ログアウトしてから終了することで再度接続できるようになると書いてあるがうまくいかないことも。
-その場合は、以下のコマンドを実行する
+その場合は、以下のコマンドを実行してvncserverを再起動する。
 ```
 docker start ros
 docker exec -it ros /bin/bash
-
+su ubuntu
 vncserver -list
-vncserver -kill :1 # 1はvncserver -listで左に表示される番号
+vncserver -kill :*
 vncserver :1 -geometry 1280x800 -depth 24
 ```
 こうしてから、ブラウザでhttp://127.0.0.1:6080 にアクセスする
