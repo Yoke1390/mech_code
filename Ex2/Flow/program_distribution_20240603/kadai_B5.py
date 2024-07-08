@@ -9,49 +9,62 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def calc_vec(A_DATA, B_DATA, xgridsize, ygridsize,
-             int_window, sea_window, widnum, heinum,
+def calc_vec(A_DATA, B_DATA, x_gridsize, y_gridsize,
+             int_window, see_window, wid_num, hei_num,
              A_wid, A_hei, B_wid, B_hei,
-             xposition, yposition, xdisplacement, ydisplacement):
+             x_position, y_position, x_displacement, y_displacement):
 
-    init = int(((A_DATA.size[0] - 1) % xgridsize) / 2 + 1)
-    for ii in range(widnum):
-        xposition[ii] = init + ii * xgridsize
-    init = int(((A_DATA.size[1] - 1) % ygridsize) / 2 + 1)
-    for jj in range(heinum):
-        yposition[jj] = init + jj * ygridsize
+    init_x_pos = int(((A_DATA.size[0] - 1) % x_gridsize) / 2 + 1)
+    for ii in range(wid_num):
+        x_position[ii] = init_x_pos + ii * x_gridsize
+    init_y_pos = int(((A_DATA.size[1] - 1) % y_gridsize) / 2 + 1)
+    for jj in range(hei_num):
+        y_position[jj] = init_y_pos + jj * y_gridsize
 
-    for jj in range(heinum):
-        for ii in range(widnum):
-            print("  (" + str(ii + 1) + "," + str(jj + 1) + ")/(" + str(widnum) + "," + str(heinum) + ")")
-            xp1 = int(xposition[ii])
-            yp1 = int(yposition[jj])
-            xbest = xp1
-            ybest = yp1
-            ccmax = 0.0
+    for jj in range(hei_num):
+        for ii in range(wid_num):
+            print(f" ({ii + 1},{jj + 1})/({wid_num},{hei_num})")
+            xp1 = int(x_position[ii])
+            yp1 = int(y_position[jj])
+            x_best = xp1
+            y_best = yp1
+            cc_max = 0.0
             cc = -1.0
-            for yp2 in range(yp1 - sea_window, yp1 + sea_window + 1):
-                for xp2 in range(xp1 - sea_window, xp1 + sea_window + 1):
-
+            for yp2 in range(yp1 - see_window, yp1 + see_window + 1):
+                for xp2 in range(xp1 - see_window, xp1 + see_window + 1):
                     ave1 = 0.0
                     ave2 = 0.0
+                    for x in range(A_wid):
+                        for y in range(A_hei):
+                            ave1 += A_DATA.getpixel((x, y))
+                            ave2 += B_DATA.getpixel((x, y))
+                    ave1 /= (A_wid * A_hei)
+                    ave2 /= (A_wid * A_hei)
+
                     tmp1 = 0.0
                     tmp2 = 0.0
                     tmp3 = 0.0
-                    num = 0
+                    for x in range(A_wid):
+                        for y in range(A_hei):
+                            tmp1 += (A_DATA.getpixel((x, y)) - ave1) ** 2
+                            tmp2 += (B_DATA.getpixel((x, y)) - ave2) ** 2
+                            tmp3 += (A_DATA.getpixel((x, y)) - ave1) * (B_DATA.getpixel((x, y)) - ave2)
+                    tmp1 /= (A_wid * A_hei)
+                    tmp2 /= (A_wid * A_hei)
+                    tmp3 /= (A_wid * A_hei)
 
                     if math.sqrt(tmp1 * tmp2) == 0:
                         cc = -1.0
                     else:
                         cc = tmp3 / math.sqrt(tmp1 * tmp2)
 
-                    if ccmax < cc:
-                        ccmax = cc
-                        xbest = xp2
-                        ybest = yp2
+                    if cc_max < cc:
+                        cc_max = cc
+                        x_best = xp2
+                        y_best = yp2
 
-            xdisplacement[jj][ii] = xbest - xp1
-            ydisplacement[jj][ii] = ybest - yp1
+            x_displacement[jj][ii] = x_best - xp1
+            y_displacement[jj][ii] = y_best - yp1
 
 
 def calcoutparam(A_DATA, xgridsize, ygridsize):
@@ -60,7 +73,7 @@ def calcoutparam(A_DATA, xgridsize, ygridsize):
     return widnum, heinum
 
 
-def summarize(xgridsize, ygridsize, int_window, sea_window, widnum, heinum,
+def summarize(xgridsize, ygridsize, int_window, see_window, widnum, heinum,
               xposition, yposition, xdisplacement, ydisplacement, csvform):
     line = [""]
 
@@ -82,11 +95,11 @@ def summarize(xgridsize, ygridsize, int_window, sea_window, widnum, heinum,
 
 
 def writematrix(outfilename, xgridsize, ygridsize,
-                int_window, sea_window, widnum, heinum,
+                int_window, see_window, widnum, heinum,
                 xposition, yposition, xdisplacement, ydisplacement):
 
     csvform = []
-    summarize(xgridsize, ygridsize, int_window, sea_window, widnum, heinum,
+    summarize(xgridsize, ygridsize, int_window, see_window, widnum, heinum,
               xposition, yposition, xdisplacement, ydisplacement, csvform)
     writecsv = csv.writer(open(outfilename, 'w', newline=''), lineterminator=",\n")
     writecsv.writerows(csvform)
@@ -128,8 +141,7 @@ def get_args():
     return (args)
 
 
-if __name__ == "__main__":
-
+def main():
     t1 = time.perf_counter()
     args = get_args()
     infilename1 = args.i1
@@ -137,7 +149,7 @@ if __name__ == "__main__":
     outfilename = args.o
     xgridsize = args.x
     ygridsize = args.y
-    sea_window = args.s
+    see_window = args.s
     int_window = args.n
     print('1st bmp image   : ' + args.i1)
     print('2nd bmp image   : ' + args.i2)
@@ -170,16 +182,20 @@ if __name__ == "__main__":
 
     print("Direct Cross Correlation Start")
     calc_vec(A_DATA, B_DATA, xgridsize, ygridsize,
-             int_window, sea_window, widnum, heinum,
+             int_window, see_window, widnum, heinum,
              A_wid, A_hei, B_wid, B_hei,
              xposition, yposition, xdisplacement, ydisplacement)
     print("Direct Cross Correlation End")
 
     print("Writing : " + outfilename)
     writematrix(outfilename, xgridsize, ygridsize,
-                int_window, sea_window, widnum, heinum,
+                int_window, see_window, widnum, heinum,
                 xposition, yposition, xdisplacement, ydisplacement)
 
     t2 = time.perf_counter()
     print("Processing time : " + '{:.3f}'.format(t2 - t1) + "s")
     print("Done")
+
+
+if __name__ == "__main__":
+    main()

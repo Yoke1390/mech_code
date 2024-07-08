@@ -10,8 +10,11 @@ import matplotlib.pyplot as plt
 
 
 def calc_ave(A_DATA, A_wid, A_hei):
-
     ave = 0
+    for x in range(A_wid):
+        for y in range(A_hei):
+            ave += A_DATA.getpixel((x, y))
+    ave /= (A_wid * A_hei)
     return ave
 
 

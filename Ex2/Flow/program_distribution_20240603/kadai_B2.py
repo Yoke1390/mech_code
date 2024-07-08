@@ -10,7 +10,17 @@ import matplotlib.pyplot as plt
 
 
 def calc_smooth(A_DATA, B_DATA, A_wid, A_hei, len):
-    ave = 0.0
+    for y in range(A_hei):
+        for x in range(A_wid):
+            total_brightness = 0
+            count = 0
+            for ky in range(max(0, y - len // 2), min(A_hei, y + len // 2 + 1)):
+                for kx in range(max(0, x - len // 2), min(A_wid, x + len // 2 + 1)):
+                    brightness = A_DATA.getpixel((kx, ky))
+                    total_brightness += brightness
+                    count += 1
+            ave_brightness = total_brightness // count
+            B_DATA.putpixel((x, y), ave_brightness)
 
 
 def get_args():
