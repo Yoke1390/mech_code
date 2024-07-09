@@ -21,20 +21,25 @@ def problem1():
     Ac = 100e-3**2 * 4
     Am = math.pi * (20e-3 / 2)**2
 
+    Fmm = 0
+    Fmc = 1 - Fmm
+    Fcm = Fmc * Am / Ac
+    Fcc = 1 - Fcm
 
     Gc = sigma * (
-        epsilon_c * Tc**4 + (1 - epsilon_c) * Tm**4 * Am / Ac
+        epsilon_c * Tc**4 + (1 - epsilon_c) * Tm**4 * Fcm
     ) / (
-        1 + epsilon_c + epsilon_m - epsilon_c * epsilon_m * Am / Ac
+        1 + epsilon_c + epsilon_m - epsilon_c * epsilon_m * Fcm
     )
     print(f"Gc = {Gc:.3e} W/m2")
 
     Gm = sigma * epsilon_m * Tm**4 + (1 - epsilon_m) * Gc
     print(f"Gm = {Gm:.3e} W/m2")
 
-    q_c = Gc - Gm * 1 - Gc * (1 - Am / Ac)
+    Q_c = Fcm * Gc * Ac - Fmc * Gm * Am
+    print(f"Q_c = {Q_c:.3e} W")
+    q_c = Q_c / Ac
     print(f"q_c = {q_c:.3e} W/m2")
-    # TODO: マイナスになってしまう
 
 # 2. 図2のように、真空で隔てられた無限に広い平行2灰色平板の間に遮へい板が2枚設置さ
 # れている。下の平板および上の平板の射出率は
@@ -53,14 +58,14 @@ def problem2():
     T1 = 900
     T2 = 500
 
-	# q = \frac{
-	# 	\sigma({T_1}^4 - {T_2}^4)
-	# }{
-	# 	\frac{1}{\varepsilon_1} +
-	# 	\frac{2}{\varepsilon_{s1}} +
-	# 	\frac{2}{\varepsilon_{s2}} +
-	# 	\frac{1}{\varepsilon_{2}} - 3
-	# }
+    # q = \frac{
+    # 	\sigma({T_1}^4 - {T_2}^4)
+    # }{
+    # 	\frac{1}{\varepsilon_1} +
+    # 	\frac{2}{\varepsilon_{s1}} +
+    # 	\frac{2}{\varepsilon_{s2}} +
+    # 	\frac{1}{\varepsilon_{2}} - 3
+    # }
 
     q = sigma * (T1**4 - T2**4) / (
         1 / epsilon_1 + 1 / epsilon_2 + 4 / epsilon_s - 3
