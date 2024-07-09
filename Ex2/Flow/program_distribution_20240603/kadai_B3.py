@@ -5,7 +5,9 @@ import csv
 import time
 import argparse
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def calc_crc(A_DATA, B_DATA, A_wid, A_hei):
@@ -104,17 +106,13 @@ if __name__ == "__main__":
         "rekidai-index-100-kishida.bmp",
     ]
 
-    result = []
+    result = pd.DataFrame()
     for num1 in range(len(image_list)):
-        result.append([])
-        for num2 in range(len(image_list)):
-            crc = process(image_list[num1], image_list[num2])
-            result[-1].append(crc)
+        result[image_list[num1]] = [process(image_list[num1], image_list[num2]) for num2 in range(len(image_list))]
     print(result)
 
-    result_path = "B3.csv"
-    os.remove(result_path) if os.path.exists(result_path) else None
+    sns.heatmap(result, annot=True, fmt='.2f', cmap='coolwarm')
+    plt.show()
 
-    with open(result_path, 'a') as f:
-        writer = csv.writer(f)
-        writer.writerows(result)
+    result_path = "B3.csv"
+    result.to_csv(result_path, index=False)
