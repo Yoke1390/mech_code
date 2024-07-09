@@ -1,0 +1,92 @@
+\documentclass{jsarticle}
+\usepackage{amsmath}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage[dvipdfmx]{color}
+\usepackage{mathtools}
+\usepackage{physics}
+\usepackage{siunitx}
+\usepackage{wrapfig}
+\usepackage{bm}
+\mathtoolsset{showonlyrefs=true}
+
+\begin{document}
+
+\title{放射伝熱レポート}
+\author{前田陽祐（03-240236）}
+\maketitle
+\section{炉内の金属線}
+\section{2枚の遮蔽板}
+無限に広い平行な灰色平面の熱流束の式は以下のようになる。
+遮蔽板は十分に薄く熱容量を無視できるので、熱流束はどの点においても等しいと考えることができる。
+\begin{equation}
+	q=\frac{
+		\sigma({T_1}^4 - {T_{s1}}^4)
+	}{
+		\frac{1}{\varepsilon_1} +
+		\frac{1}{\varepsilon_{s1}} - 1
+	}=\frac{
+		\sigma({T_{s1}}^4 - {T_{s2}}^4)
+	}{
+		\frac{1}{\varepsilon_{s1}} +
+		\frac{1}{\varepsilon_{s2}} - 1
+	}=\frac{
+		\sigma({T_{s2}}^4 - {T_{2}}^4)
+	}{
+		\frac{1}{\varepsilon_{s2}} +
+		\frac{1}{\varepsilon_{2}} - 1
+	}
+\end{equation}
+
+分母を払うと以下のようになる。
+
+\begin{align}
+	\frac{1}{\sigma}
+	\left(
+	\frac{1}{\varepsilon_1} +
+	\frac{1}{\varepsilon_{s1}} - 1
+	\right) q & =
+	{T_1}^4 - {T_{s1}}^4    \\
+	\frac{1}{\sigma}
+	\left(
+	\frac{1}{\varepsilon_{s1}} +
+	\frac{1}{\varepsilon_{s2}} - 1
+	\right) q & =
+	{T_{s1}}^4 - {T_{s2}}^4 \\
+	\frac{1}{\sigma}
+	\left(
+	\frac{1}{\varepsilon_{s2}} +
+	\frac{1}{\varepsilon_{2}} - 1
+	\right) q & =
+	{T_{s2}}^4 - {T_{2}}^4
+\end{align}
+
+これらを足し合わせて、
+
+\begin{equation}
+	\frac{1}{\sigma}
+	\left(
+	\frac{1}{\varepsilon_1} +
+	\frac{2}{\varepsilon_{s1}} +
+	\frac{2}{\varepsilon_{s2}} +
+	\frac{1}{\varepsilon_{2}} - 3
+	\right) q =
+	{T_1}^4 - {T_2}^4
+\end{equation}
+
+すなわち、
+
+\begin{equation}
+	q = \frac{
+		\sigma({T_1}^4 - {T_2}^4)
+	}{
+		\frac{1}{\varepsilon_1} +
+		\frac{2}{\varepsilon_{s1}} +
+		\frac{2}{\varepsilon_{s2}} +
+		\frac{1}{\varepsilon_{2}} - 3
+	}
+\end{equation}
+
+これを計算すると、$q = 3.045\times10^3 \mathrm{\,W/m2}$となる。
+
+
+\end{document}
