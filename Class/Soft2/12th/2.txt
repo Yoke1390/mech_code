@@ -1,0 +1,25 @@
+コード
+```
+import xmlrpc.client
+server = xmlrpc.client.ServerProxy('http://yubin.senmon.net/service/xmlrpc/')
+result = server.yubin.fetchAddressByPostcode("1138656")[0]
+for key in result:
+    print(key + ": " + str(result[key]))
+```
+
+実行結果
+```
+town: 本郷
+yid: 113865601
+jiscode: 13105
+data_type: j
+city: 文京区
+addr_name: 東京大学　工学部
+pref: 東京都
+pref_kana: 
+city_kana: 
+other: ７丁目３−１
+postcode: 1138656
+town_kana: 
+addr_name_kana: とうきようだいがく こうがくぶ
+```
