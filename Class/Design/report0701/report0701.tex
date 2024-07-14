@@ -1,0 +1,73 @@
+\documentclass{jsarticle}
+\usepackage{amsmath}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage[dvipdfmx]{color}
+\usepackage{mathtools}
+\usepackage{physics}
+\usepackage{siunitx}
+\usepackage{wrapfig}
+\usepackage{bm}
+\mathtoolsset{showonlyrefs=true}
+
+\begin{document}
+
+\title{条件付き最適設計}
+\author{前田陽祐（03-240236）}
+\maketitle
+
+\section{目的}
+講義における例を参考に、ある体積をもつ円筒容器の設計を考える。
+その際、円筒容器に使用する材料の体積を最小化することを目的とする。
+
+\subsection{設計変数}
+円筒容器の内側の半径$r$と内側の高さ$h$、容器の厚み$t$を設計変数とする。
+
+\subsection{制約関数}
+円筒容器の体積$V$が一定であるとする。
+\begin{equation}
+  h(r, h) = \pi r^2 h - V = 0
+\end{equation}
+
+\subsection{目的関数}
+円筒容器に使用する材料の体積$V_{\text{material}}$を最小化する。
+
+材料力学より、円筒容器の内圧$p$に耐えられる容器の厚み$t$は内圧と外圧（大気圧）$p_0$の差$p-p_0$に比例する。
+\begin{equation}
+  t = \frac{(p-p_0) r}{\sigma}
+\end{equation}
+ここで、$\sigma$は材料の許容応力である。
+
+また、内圧$p$の最大値は、容器の高さ$h$と大気圧$p_0$によって決まる。
+\begin{equation}
+  p = p_0 + \rho g h
+\end{equation}
+ここで、$\rho$は液体の密度、$g$は重力加速度である。
+したがって、内圧と外圧の差は次のように表される。
+\begin{equation}
+  p - p_0 = \rho g h
+\end{equation}
+
+円筒容器の面積は$2\pi r^2 + 2\pi r h$であるので、材料の体積は次のように表される。
+\begin{align}
+  V_{\text{material}} &= (2\pi r^2 + 2\pi r h) t \\
+                      &=  2\pi r (r+h) \frac{(p-p_0) r}{\sigma} \\
+                      &= \frac{2\pi\rho g }{\sigma} r^2 h(r+h)
+\end{align}
+
+目的関数は定数倍を無視することができるので、次のように表される。
+\begin{equation}
+  f(r, h) = r^2 h (r+h) 
+\end{equation}
+
+\section{最適化}
+\subsection{ラグランジュアン}
+ラグランジュアン$L$は次のように表される。
+\begin{align}
+  L(r, h, \lambda) &= f(r, h) + \lambda h(r, h) \\
+                   &= r^2 h (r+h) + \lambda (\pi r^2 h - V)
+\end{align}
+
+\subsection{必要条件}
+
+
+\end{document}
