@@ -1,24 +1,27 @@
-import tkinter as tk
+import sys
 import math
 import time
 import threading
+import tkinter as tk
 import serial
 
+# 時計の初期時刻を引数から取得
+init_hour = int(sys.argv[1])
+init_minute = int(sys.argv[2])
 
 # シリアルポートの設定
-ser = serial.Serial('/dev/cu.usbserial-120', 9600)
-
-
-# ======= 時計のパラメータ ========
-init_hour = 10
-init_minute = 10
-
-# =================================
+try:
+    port = sys.argv[3]
+    ser = serial.Serial(port, 9600)
+except IndexError:
+    print('No USB arduino port specified')
+    sys.exit(1)
 
 
 class AnalogClock(tk.Canvas):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
+        # 描画サイズの設定
         self.width = self.winfo_reqwidth()
         self.height = self.winfo_reqheight()
         self.center = (self.width // 2, self.height // 2)
@@ -33,9 +36,14 @@ class AnalogClock(tk.Canvas):
         self.last_minute = self.minute
         self.last_hour = self.hour
 
+        # イベントの設定
         self.bind("<B1-Motion>", self.on_drag)
+
+        # 時計の描画
         self.draw_clock()
-        self.timeEvent()  # タイマー起動
+
+        # タイマーを起動して、定期的にシリアル通信でステッピングモーターにステップ数を送信
+        self.timeEvent()
 
     # タイマー起動用関数
     def timeEvent(self):
@@ -105,7 +113,6 @@ class AnalogClock(tk.Canvas):
 
         self.draw_clock()
 
-
     def send_step(self):
         minute_diff = self.minute - self.last_minute
         hour_diff = self.hour - self.last_hour
@@ -118,9 +125,9 @@ class AnalogClock(tk.Canvas):
         ser.write(bytes(send, encoding="ascii"))  # ステッピングモーターにステップ数を送信
 
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Analog Clock")
-    clock = AnalogClock(root, width=400, height=400)
-    clock.pack(expand=True, fill=tk.BOTH)
-    root.mainloop()
+# 処理の開始
+root = tk.Tk()
+root.title("Analog Clock")
+clock = AnalogClock(root, width=400, height=400)
+clock.pack(expand=True, fill=tk.BOTH)
+root.mainloop()
