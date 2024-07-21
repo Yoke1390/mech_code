@@ -1,0 +1,65 @@
+task()を以下のように変更したところ、排他制御がされていないことが正しく確認できた。
+iのループの待機時間が10.0/loopでは排他制御されているかのように見えたが、
+1.0/loopに変更したところ、排他制御がされていないことがわかった。
+
+```
+def task(loop):
+    global shared_resource
+    for i in range(loop):
+        print("Thread {}: i:{}, shared_resource:{}".format(
+            threading.current_thread().ident, i, shared_resource))
+        # shared_resource = shared_resource + 1
+        for j in range(10000):
+            tmp = shared_resource
+            tmp = tmp + 1
+            time.sleep(1e-6)
+            shared_resource = tmp
+        time.sleep(1.0 / loop)
+```
+
+実行結果（一部）
+```
+Thread 6146879488: i:0, shared_resource:0
+Thread 6163705856: i:0, shared_resource:0
+Thread 6163705856: i:1, shared_resource:10000
+Thread 6146879488: i:1, shared_resource:20000
+Thread 6163705856: i:2, shared_resource:30000
+Thread 6163705856: i:3, shared_resource:40000
+Thread 6146879488: i:2, shared_resource:42491
+Thread 6163705856: i:4, shared_resource:52491
+Thread 6146879488: i:3, shared_resource:62491
+```
+
+次に、以下のように排他制御を実装したところ、
+正しく排他制御がされていることが確認できた。
+```
+lock = threading.Lock()
+
+def task(loop):
+    global shared_resource
+    for i in range(loop):
+        lock.acquire()
+        print("Thread {}: i:{}, shared_resource:{}".format(
+            threading.current_thread().ident, i, shared_resource))
+        # shared_resource = shared_resource + 1
+        for j in range(10000):
+            tmp = shared_resource
+            tmp = tmp + 1
+            time.sleep(1e-6)
+            shared_resource = tmp
+        lock.release()
+        time.sleep(1.0 / loop)
+```
+
+実行結果（一部）
+```
+Thread 6178926592: i:0, shared_resource:0
+Thread 6195752960: i:0, shared_resource:10000
+Thread 6195752960: i:1, shared_resource:20000
+Thread 6178926592: i:1, shared_resource:30000
+Thread 6195752960: i:2, shared_resource:40000
+Thread 6178926592: i:2, shared_resource:50000
+Thread 6195752960: i:3, shared_resource:60000
+Thread 6195752960: i:4, shared_resource:70000
+Thread 6178926592: i:3, shared_resource:80000
+```

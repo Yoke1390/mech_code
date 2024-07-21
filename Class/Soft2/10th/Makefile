@@ -1,4 +1,7 @@
-all: test-fork-c test-thread-c test-thread2-c # test-fork-mmap test-fork-mmap-lock test-thread test-thread2 test-thread3 server client #kernelshark
+.PHONY all: test-fork-c test-thread-c test-thread2-c # test-fork-mmap test-fork-mmap-lock test-thread test-thread2 test-thread3 server client #kernelshark
+
+.PHONY clean:
+	rm -f test-fork test-thread test-thread2 test-thread2-fix test-thread-signal test-fork-mmap test-fork-mmap-lock test-thread2-py test-thread2-fix-py test-thread-signal-py
 
 test-fork-c: test-fork.c
 	gcc -o test-fork test-fork.c
@@ -24,7 +27,7 @@ test-fork-mmap-lock-c: test-fork-mmap-lock.c
 	gcc -o test-fork-mmap-lock test-fork-mmap-lock.c -lrt
 	./test-fork-mmap-lock
 
-homework: test-thread2-fix-c test-thread-signal-c test-thread2-py test-thread2-fix-py # test-thread-signal-py
+.PHONY homework: test-thread2-fix-c test-thread-signal-c test-thread2-py test-thread2-fix-py # test-thread-signal-py
 
 test-thread2-fix-c: test-thread2-fix.c
 	gcc -o test-thread2-fix test-thread2-fix.c -lpthread
@@ -42,7 +45,6 @@ test-thread2-fix-py: test-thread2-fix.py
 
 test-thread-signal-py: test-thread-signal.py
 	python ./test-thread-signal.py
-
 
 # https://www.slideshare.net/makotoshimazu/ss-33071336
 # sudo apt install kernelshark

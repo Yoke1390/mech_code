@@ -1,0 +1,43 @@
+以下のように、コンパイルオプションとして-gを指定して、アセンブリをソースコードと比較しやすいようにした。
+```
+$ gcc -S -g -c -O0 -o fact-toc-gO0.s fact-toc.c
+```
+アセンブリには`Ltmp0`などのラベルや`.loc`などのデバッグ情報が含まれている。
+
+最適化を無効にした場合のアセンブリのうち、特に8行目(return文)のアセンブリを以下に示す。
+
+8行目のコード
+```c
+    return fact(counter * product, counter + 1, max_counter);
+```
+
+アセンブリ(コメントのうち、変数名などはソースコードと比較してわかりやすいように追加した)
+```assembly
+LBB0_2:
+	.loc	1 8 17 is_stmt 1                ; fact-toc.c:8:17 : counter
+	ldr	w8, [sp, #4]
+	.loc	1 8 27 is_stmt 0                ; fact-toc.c:8:27 : product
+	ldr	w9, [sp, #8]
+	.loc	1 8 25                          ; fact-toc.c:8:25 : counter * product
+	mul	w0, w8, w9
+	.loc	1 8 36                          ; fact-toc.c:8:36 : counter
+	ldr	w8, [sp, #4]
+	.loc	1 8 44                          ; fact-toc.c:8:44 : counter + 1
+	add	w1, w8, #1
+	.loc	1 8 49                          ; fact-toc.c:8:49 : max_counter
+	ldr	w2, [sp]
+	.loc	1 8 12                          ; fact-toc.c:8:12 : fact()
+	bl	_fact
+	.loc	1 8 5                           ; fact-toc.c:8:5  : return
+	stur	w0, [x29, #-4]
+	b	LBB0_3
+```
+このアセンブリを見ると、fact関数の引数をレジスタにロードし、fact関数を呼び出していることがわかる。
+
+次に、最適化を有効にした場合について調べる。
+```
+$ gcc -S -g -c -O2 -o fact-toc-gO2.s fact-toc.c
+```
+このようにして最適化を有効にしたアセンブリを作成してみたが、最適化を有効にした場合のアセンブリは、最適化を無効にした場合のアセンブリと比較して、より複雑で読みにくいものになっていた。
+ソースコード8行目に関連する部分を探してみたところ、複数の箇所に分かれて記述されていた。その中には、main関数の中の部分も含まれていた。
+そのため詳細はわからなかったが、これらの変更によって末尾再帰最適化が行われていると考えられる。

@@ -1,0 +1,94 @@
+# C言語での実装
+
+#include <math.h>
+#include <stdio.h>
+
+void print_roots_float(float a, float b, float c) {
+  printf("Solve with float\n");
+  float d = b * b - 4 * a * c;
+  if (d < 0) {
+    printf("No real roots\n");
+  } else if (d == 0) {
+    printf("One real root: %.16f\n", -b / (2 * a));
+  } else {
+    float x1 = (-b + sqrtf(d)) / (2 * a);
+    float x2 = (-b - sqrtf(d)) / (2 * a);
+    printf("Two real roots: %.16f and %.16f\n", x1, x2);
+  }
+}
+
+void print_roots_double(double a, double b, double c) {
+  printf("Solve with double\n");
+  double d = b * b - 4 * a * c;
+  if (d < 0) {
+    printf("No real roots\n");
+  } else if (d == 0) {
+    printf("One real root: %.16f\n", -b / (2 * a));
+  } else {
+    double x1 = (-b + sqrt(d)) / (2 * a);
+    double x2 = (-b - sqrt(d)) / (2 * a);
+    printf("Two real roots: %.16f and %.16f\n", x1, x2);
+  }
+}
+
+int main() {
+  float a = 1, b = 2, c = -2;
+  print_roots_float(a, b, c);
+  print_roots_double(a, b, c);
+  return 0;
+}
+
+# 実行結果
+Solve with float
+Two real roots: 0.7320507764816284 and -2.7320508956909180
+Solve with double
+Two real roots: 0.7320508075688772 and -2.7320508075688772
+
+# Pythonでの実装
+import math
+import numpy
+
+
+def solve_built_in(a, b, c):
+    x1 = (-b + (b**2 - 4 * a * c) ** 0.5) / (2 * a)
+    x2 = (-b - (b**2 - 4 * a * c) ** 0.5) / (2 * a)
+    return x1, x2
+
+
+def solve_math(a, b, c):
+    x1 = (-b + math.sqrt(b**2 - 4 * a * c)) / (2 * a)
+    x2 = (-b - math.sqrt(b**2 - 4 * a * c)) / (2 * a)
+    return x1, x2
+
+
+def solve_numpy(a, b, c):
+    x1, x2 = numpy.roots([a, b, c])
+    return x1, x2
+
+
+# ax^2 + bx + c = 0
+a = 1
+b = 2
+c = -2
+
+if b**2 - 4 * a * c < 0:
+    raise ValueError("No real roots. b^2 - 4ac < 0")
+
+print("Solving using built-in calculation")
+print(solve_built_in(a, b, c))
+print("Solving using math library")
+print(solve_math(a, b, c))
+print("Solving using numpy library")
+print(solve_numpy(a, b, c))
+
+# 実行結果
+Solving using built-in calculation
+(0.7320508075688772, -2.732050807568877)
+Solving using math library
+(0.7320508075688772, -2.732050807568877)
+Solving using numpy library
+(np.float64(-2.732050807568877), np.float64(0.7320508075688773))
+
+# まとめ
+C言語での実装では、float型とdouble型計算の精度に差があることがわかる。
+Pythonでの実装では、built-in計算、mathライブラリ、numpyライブラリの計算結果がほとんど同じであることがわかる。

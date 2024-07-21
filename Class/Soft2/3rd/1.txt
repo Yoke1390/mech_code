@@ -1,3 +1,5 @@
+# コード
+```
 def inc_a(x, inc_times=0):
     model = "1 + " * inc_times + str(x)
     print(model)
@@ -39,3 +41,27 @@ def plus_b(a, b):
 print(plus_a(4, 5))
 print("")
 print(plus_b(4, 5))
+```
+
+
+# 実行結果
+
+plus_a(4, 5)
+1 + plus_a(3, 5)
+1 + 1 + plus_a(2, 5)
+1 + 1 + 1 + plus_a(1, 5)
+1 + 1 + 1 + 1 + plus_a(0, 5)
+1 + 1 + 1 + 1 + 5
+1 + 1 + 1 + 6
+1 + 1 + 7
+1 + 8
+9
+# これは線形再帰プロセスであると言える。
+
+plus_b(4, 5) -> plus_b(3, 6)
+plus_b(3, 6) -> plus_b(2, 7)
+plus_b(2, 7) -> plus_b(1, 8)
+plus_b(1, 8) -> plus_b(0, 9)
+plus_b(0, 9) -> 9
+9
+# これは線形反復プロセスであると言える。

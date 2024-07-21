@@ -17,15 +17,23 @@ def signal_handler(signum, frame):
 
 
 shared_resource = 0
+lock = threading.Lock()
 
 
 def task(loop):
     global shared_resource
     for i in range(loop):
+        lock.acquire()
         print("Thread {}: i:{}, shared_resource:{}".format(
             threading.current_thread().ident, i, shared_resource))
-        shared_resource = shared_resource + 1
-        time.sleep(10.0 / loop)
+        # shared_resource = shared_resource + 1
+        for j in range(10000):
+            tmp = shared_resource
+            tmp = tmp + 1
+            time.sleep(1e-6)
+            shared_resource = tmp
+        lock.release()
+        time.sleep(1.0 / loop)
 
 
 thread1 = threading.Thread(target=task, args=([10]))

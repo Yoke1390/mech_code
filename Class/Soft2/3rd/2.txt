@@ -36,3 +36,15 @@ def measure_Fib(n):
 
 for i in range(0, 40, 5):
     measure_Fib(i)
+
+# 実行結果
+$ python measure_Fib.py
+
+Fib(0) -> 0, recursion = 1 times, memory = 160 bytes
+Fib(5) -> 5, recursion = 15 times, memory = 160 bytes
+Fib(10) -> 55, recursion = 177 times, memory = 104 bytes
+Fib(15) -> 610, recursion = 1973 times, memory = 224 bytes
+Fib(20) -> 6765, recursion = 21891 times, memory = 224 bytes
+Fib(25) -> 75025, recursion = 242785 times, memory = 280 bytes
+Fib(30) -> 832040, recursion = 2692537 times, memory = 224 bytes
+Fib(35) -> 9227465, recursion = 29860703 times, memory = 168 bytes
